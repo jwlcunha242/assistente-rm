@@ -1,0 +1,37 @@
+{
+  "name": "Assistente de consultas RM",
+  "short_name": "Assistente RM",
+  "description": "Escreva os dados que precisa e receba a consulta SQL do TOTVS RM Labore com os relacionamentos certos.",
+  "lang": "pt-BR",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F3F6F5",
+  "theme_color": "#2E6A4E",
+  "icons": [
+    {
+      "src": "icones/icone-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icones/icone-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icones/icone-mascaravel-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Lista de campos",
+      "url": "./seletor.html"
+    }
+  ]
+}
