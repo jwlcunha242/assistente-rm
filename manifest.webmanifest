@@ -1,6 +1,6 @@
 {
-  "name": "Assistente de consultas RM",
-  "short_name": "Assistente RM",
+  "name": "Assistente de consultas RM Labore",
+  "short_name": "Assistente de consultas RM Labore",
   "description": "Escreva os dados que precisa e receba a consulta SQL do TOTVS RM Labore com os relacionamentos certos.",
   "lang": "pt-BR",
   "start_url": "./index.html",

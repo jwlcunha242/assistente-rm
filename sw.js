@@ -1,5 +1,5 @@
 // Guarda o app no aparelho para funcionar sem internet. A versão muda a cada nova geração do app.
-const VERSAO = "assistente-rm-af1cddaf65";
+const VERSAO = "assistente-rm-c399149561";
 const ARQUIVOS = ["./", "index.html", "seletor.html", "manifest.webmanifest",
                   "icones/icone-192.png", "icones/icone-512.png", "icones/icone-mascaravel-512.png",
                   "icones/apple-touch-icon.png"];
