@@ -319,7 +319,8 @@ input[type=checkbox] { accent-color: var(--c-acento); width: 16px; height: 16px;
 /* busca */
 .busca { position: sticky; top: var(--space-sm); max-height: calc(100vh - var(--space-lg)); display: flex; flex-direction: column; overflow: hidden; }
 .busca-topo { padding: var(--space-md) var(--space-md) var(--space-sm); border-bottom: 1px solid var(--c-regua); display: grid; gap: var(--space-xs); }
-.busca-topo > label { font-family: var(--f-titulo); font-weight: 600; font-size: var(--text-lg); letter-spacing: -0.02em; }
+.busca-cabeca { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); flex-wrap: wrap; }
+.busca-cabeca label { font-family: var(--f-titulo); font-weight: 600; font-size: var(--text-lg); letter-spacing: -0.02em; }
 .campo-busca { display: flex; align-items: center; gap: var(--space-xs); padding: 0 var(--space-sm); border: 1px solid var(--c-regua-forte);
                border-radius: var(--r-caixa); background: var(--c-sup); transition: border-color var(--dur-micro) var(--ease-out); }
 .campo-busca:focus-within { border-color: var(--c-acento); outline: 2px solid var(--c-acento-claro); outline-offset: 0; }
@@ -331,6 +332,11 @@ input[type=checkbox] { accent-color: var(--c-acento); width: 16px; height: 16px;
                        border-radius: var(--r-tecla); color: var(--c-tinta); }
 .lista-rolagem { overflow-y: auto; padding: var(--space-xs); }
 .contagem { color: var(--c-suave); font-size: var(--text-sm); padding: var(--space-2xs) var(--space-xs) var(--space-xs); margin: 0; }
+.linha-voltar { position: sticky; top: calc(-1 * var(--space-xs)); z-index: 1; display: flex; align-items: center; gap: var(--space-sm);
+                margin: calc(-1 * var(--space-xs)) calc(-1 * var(--space-xs)) var(--space-2xs); padding: var(--space-xs);
+                background: var(--c-sup); border-bottom: 1px solid var(--c-regua); }
+.botao-voltar { min-height: 32px; padding: 0 var(--space-sm) 0 var(--space-xs); flex: none; }
+.linha-voltar .onde { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-sm); color: var(--c-tinta2); }
 .subtitulo-lista { list-style: none; padding: var(--space-sm) var(--space-sm) var(--space-2xs); font-size: var(--text-sm); font-weight: 500; color: var(--c-suave); }
 
 .grupos { padding: var(--space-xs); display: grid; gap: var(--space-md); }
@@ -479,7 +485,12 @@ pre.sql { min-height: 4.5em; }
 <main class="grade">
   <section class="painel busca" aria-label="Procurar campos">
     <div class="busca-topo">
-      <label for="q">Procurar campo</label>
+      <div class="busca-cabeca">
+        <label for="q">Procurar campo</label>
+        <button class="btn-codigo principal so-local" id="executarTopo" type="button" title="Executar no banco e ver o resultado" disabled>
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+          Executar</button>
+      </div>
       <div class="campo-busca">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
         <input id="q" type="search" autocomplete="off" placeholder="salário, nascimento, admissão, situação…">
@@ -551,79 +562,74 @@ pre.sql { min-height: 4.5em; }
 
 <footer class="rodape" id="rodape"></footer>
 
-<!-- Painel "Como usar" (entra no Assistente e na Lista de campos pelo gerador). Abre sozinho na primeira visita. -->
+<!-- Painel "Como usar" (entra no Assistente e na Lista de campos pelo gerador). Curto de propósito: 3 passos e 3 dicas,
+     com o texto da tela em que a pessoa está. Abre sozinho na primeira visita. -->
 <dialog class="ajuda" id="ajuda" aria-labelledby="ajuda-titulo">
   <div class="ajuda-topo">
-    <h2 id="ajuda-titulo">Como usar o Assistente de consultas</h2>
+    <h2 id="ajuda-titulo">Como usar</h2>
     <button class="ajuda-fechar" type="button" data-fechar-ajuda aria-label="Fechar">
       <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </div>
   <div class="ajuda-corpo">
-    <p class="ajuda-abertura">Você diz quais dados precisa e o app monta a consulta SQL do TOTVS RM Labore, já com os
-      relacionamentos certos entre as tabelas, inclusive a coligada quando ela se aplica.</p>
 
-    <ol class="ajuda-passos">
-      <li><strong>Escreva o que precisa</strong>
-        <span>“quero uma lista de funcionários com chapa, seção e salário”</span></li>
-      <li><strong>Ajuste conversando</strong>
-        <span>“coloca o CPF”, “tira o salário”, “só os ativos”, “de 10/2024”, “tira os filtros”</span></li>
-      <li><strong>Copie e use no RM</strong>
-        <span>Botão Copiar SQL. Cole nas Consultas SQL do RM ou no SQL Server.</span></li>
-    </ol>
-
-    <section>
-      <h3>O que ele entende</h3>
-      <dl class="ajuda-lista">
-        <dt>Cadastro</dt>
-        <dd>chapa, nome, CPF, RG, PIS, nascimento, idade, sexo, admissão, demissão, tempo de casa, situação, seção,
-          função, filial, coligada, centro de custo, sindicato, horário, endereço, telefone, e-mail</dd>
-        <dt>Ficha financeira</dt>
-        <dd>evento, código do evento, valor, referência, competência, período, total de proventos, total de descontos, líquido</dd>
-        <dt>Dependentes</dt>
-        <dd>nome do dependente, parentesco, idade, CPF</dd>
-        <dt>Filtros</dt>
-        <dd>só os ativos, demitidos, admitidos em 2024, salário acima de 3000, da seção comercial, da coligada 1,
-          de outubro de 2024, período 2, só proventos, do evento 0010, ordenado por nome</dd>
-        <dt>Tirar filtros</dt>
-        <dd>tira os filtros (ou exclui o where), tira o filtro de competência, todas as coligadas, tira a ordenação</dd>
-      </dl>
-    </section>
-
-    <section>
-      <h3>Duas formas de montar</h3>
-      <dl class="ajuda-lista">
-        <dt>Conversa</dt>
-        <dd>Escreva em português. É o jeito mais rápido para os relatórios do dia a dia.</dd>
-        <dt>Lista de campos</dt>
-        <dd>Procure e marque os campos, coloque filtros e escolha a ordem. Use quando a conversa não reconhecer uma
-          palavra ou quando precisar de um campo menos comum.</dd>
-        <dt>Editar o SQL</dt>
-        <dd>Na Conversa, clique no SQL e mude à mão. Copiar, Baixar e Executar usam o texto editado; “Desfazer edição” volta ao
-          que o assistente montou.</dd>
-        <dt>Executar</dt>
-        <dd>No app do computador (atalho Assistente RM), o botão Executar roda a consulta no banco do RM e mostra o
-          resultado numa tabela, que dá para baixar para o Excel. Na primeira vez ele pergunta o servidor e o banco.</dd>
-      </dl>
-    </section>
-
-    <section>
-      <h3>Cuidados</h3>
-      <ul class="ajuda-cuidados">
-        <li>As consultas só leem dados. Nada é alterado no banco.</li>
-        <li>Os avisos em amarelo explicam quando um funcionário pode aparecer mais de uma vez (ficha financeira,
-          dependentes) ou quando falta um filtro, como a competência.</li>
-        <li>A base de tabelas é da versão 12.1.2510 do RM. Confira o resultado na base do cliente.</li>
-        <li>Para recomeçar: botão Nova consulta no topo, ou escreva “limpar”.</li>
+    <div class="ajuda-tela" data-tela="conversa">
+      <p class="ajuda-abertura">Escreva os dados que você precisa. O assistente monta a consulta SQL do RM.</p>
+      <ol class="ajuda-passos">
+        <li><strong>Escreva o que quer ver</strong>
+          <span>“funcionários com chapa, nome, seção e salário”</span></li>
+        <li><strong>Ajuste conversando</strong>
+          <span>“coloca o CPF”, “tira o salário”, “só os ativos”, “de 10/2024”</span></li>
+        <li><strong>Copie o SQL</strong>
+          <span>e cole no RM. No app do computador, “Executar” mostra o resultado e baixa para o Excel.</span></li>
+      </ol>
+      <ul class="ajuda-dicas">
+        <li>Para tirar os filtros, escreva “tira os filtros”.</li>
+        <li>Quer mudar algo à mão? Clique no SQL e digite.</li>
+        <li>Ele não entendeu uma palavra? Use a <strong>Lista de campos</strong>.</li>
       </ul>
-    </section>
+      <details class="ajuda-mais">
+        <summary>Ver as palavras que ele entende</summary>
+        <dl class="ajuda-lista">
+          <dt>Cadastro</dt>
+          <dd>chapa, nome, CPF, RG, PIS, nascimento, idade, sexo, admissão, demissão, situação, seção, função, filial,
+            coligada, centro de custo, sindicato, endereço, telefone, e-mail</dd>
+          <dt>Folha</dt>
+          <dd>evento, valor, referência, competência, período, total de proventos, total de descontos, líquido</dd>
+          <dt>Dependentes</dt>
+          <dd>nome do dependente, parentesco, idade, CPF</dd>
+          <dt>Filtros</dt>
+          <dd>só os ativos, demitidos, admitidos em 2024, salário acima de 3000, da seção comercial, da coligada 1,
+            de outubro de 2024, só proventos, ordenado por nome</dd>
+        </dl>
+      </details>
+    </div>
+
+    <div class="ajuda-tela" data-tela="lista" hidden>
+      <p class="ajuda-abertura">Monte a consulta escolhendo os campos numa lista.</p>
+      <ol class="ajuda-passos">
+        <li><strong>Escolha os campos</strong>
+          <span>Clique nos campos mais usados ou procure pelo nome. Abra uma tabela para ver todos os campos dela.</span></li>
+        <li><strong>Organize</strong>
+          <span>Arraste para mudar a ordem. Use “Filtrar” para escolher só uma parte dos dados.</span></li>
+        <li><strong>Copie o SQL</strong>
+          <span>e cole no RM. No app do computador, “Executar” mostra o resultado.</span></li>
+      </ol>
+      <ul class="ajuda-dicas">
+        <li>“Voltar”, no topo da lista, leva de volta aos campos mais usados.</li>
+        <li>“Trazer nome” coloca o nome no lugar do código (ex.: o nome da seção).</li>
+        <li>“Começar de novo” limpa tudo.</li>
+      </ul>
+    </div>
+
+    <p class="ajuda-nota">As consultas só leem dados. Nada é alterado no banco.</p>
   </div>
   <div class="ajuda-rodape">
-    <button class="ajuda-ok" type="button" data-fechar-ajuda autofocus>Entendi, vamos começar</button>
+    <button class="ajuda-ok" type="button" data-fechar-ajuda autofocus>Entendi</button>
   </div>
 </dialog>
 <style>
-  .ajuda { width: min(680px, calc(100% - 32px)); max-height: min(88vh, 860px); padding: 0; border: 1px solid var(--linha-suave);
+  .ajuda { width: min(560px, calc(100% - 32px)); max-height: min(88vh, 760px); padding: 0; border: 1px solid var(--linha-suave);
            border-radius: 16px; background: var(--superficie); color: var(--tinta); box-shadow: var(--sombra-dialogo); }
   .ajuda[open] { display: flex; flex-direction: column; }
   .ajuda::backdrop { background: var(--veu); }
@@ -631,28 +637,34 @@ pre.sql { min-height: 4.5em; }
     .ajuda[open] { animation: ajuda-entra .22s cubic-bezier(.16, 1, .3, 1); }
     @keyframes ajuda-entra { from { opacity: 0; transform: translateY(8px) scale(.99); } to { opacity: 1; transform: none; } }
   }
-  .ajuda-topo { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm, 12px); padding: var(--space-md, 16px) var(--space-md, 16px) var(--space-sm, 12px) 22px;
-                border-bottom: 1px solid var(--linha-suave); }
-  .ajuda-topo h2 { margin: 0; font-size: 1.1875rem; letter-spacing: -0.01em; text-wrap: balance; }
-  .ajuda-fechar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; border: 1px solid transparent;
+  .ajuda-topo { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm, 12px);
+                padding: var(--space-md, 16px) var(--space-md, 16px) var(--space-xs, 8px) var(--space-lg, 24px); }
+  .ajuda-topo h2 { margin: 0; font-size: 1.44rem; letter-spacing: -0.02em; }
+  .ajuda-fechar { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9px; border: 1px solid transparent;
                   background: transparent; color: var(--tinta-suave); cursor: pointer; flex: none; }
   .ajuda-fechar:hover { border-color: var(--linha); color: var(--tinta); }
-  .ajuda-corpo { overflow-y: auto; padding: var(--space-md, 16px) 22px var(--space-xs, 8px); display: grid; gap: 20px; }
-  .ajuda-abertura { margin: 0; max-width: 62ch; }
+  .ajuda-corpo { overflow-y: auto; padding: 0 var(--space-lg, 24px) var(--space-md, 16px); }
+  .ajuda-tela { display: grid; gap: var(--space-md, 16px); }
+  .ajuda-tela[hidden] { display: none; }
+  .ajuda-abertura { margin: 0; color: var(--tinta-suave); font-size: 1rem; }
   .ajuda-passos { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-xs, 8px); counter-reset: passo; }
-  .ajuda-passos li { display: grid; grid-template-columns: 30px 1fr; column-gap: var(--space-sm, 12px); align-items: start; padding: 10px var(--space-sm, 12px);
-                     background: var(--faixa); border-radius: 10px; counter-increment: passo; }
-  .ajuda-passos li::before { content: counter(passo); grid-row: span 2; display: grid; place-items: center; width: 30px; height: 30px;
+  .ajuda-passos li { display: grid; grid-template-columns: 32px 1fr; column-gap: var(--space-sm, 12px); align-items: start;
+                     padding: var(--space-sm, 12px); background: var(--faixa); border-radius: 12px; counter-increment: passo; }
+  .ajuda-passos li::before { content: counter(passo); grid-row: span 2; display: grid; place-items: center; width: 32px; height: 32px;
                              border-radius: 50%; background: var(--verde); color: var(--sobre-verde); font-weight: 700; }
-  .ajuda-passos strong { font-size: .9375rem; }
-  .ajuda-passos span { color: var(--tinta-suave); font-size: .9375rem; }
-  .ajuda section h3 { margin: 0 0 var(--space-xs, 8px); font-size: 1rem; }
-  .ajuda-lista { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px var(--space-md, 16px); }
-  .ajuda-lista dt { font-weight: 700; color: var(--verde-forte); }
+  .ajuda-passos strong { font-size: 1rem; }
+  .ajuda-passos span { color: var(--tinta-suave); }
+  .ajuda-dicas { margin: 0; padding-left: 20px; display: grid; gap: var(--space-2xs, 4px); color: var(--tinta); }
+  .ajuda-mais summary { cursor: pointer; color: var(--tinta-suave); font-size: .875rem; font-weight: 500; }
+  .ajuda-mais summary:hover { color: var(--tinta); }
+  .ajuda-mais[open] summary { margin-bottom: var(--space-sm, 12px); }
+  .ajuda-lista { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: var(--space-xs, 8px) var(--space-md, 16px); font-size: .875rem; }
+  .ajuda-lista dt { font-weight: 700; }
   .ajuda-lista dd { margin: 0; color: var(--tinta-suave); }
-  .ajuda-cuidados { margin: 0; padding-left: 20px; display: grid; gap: var(--space-2xs, 4px); color: var(--tinta-suave); }
-  .ajuda-rodape { padding: var(--space-sm, 12px) 22px var(--space-md, 16px); border-top: 1px solid var(--linha-suave); display: flex; justify-content: flex-end; }
-  .ajuda-ok { border: 0; background: var(--verde); color: var(--sobre-verde); font-weight: 700; padding: 9px 18px; border-radius: 10px; cursor: pointer; }
+  .ajuda-nota { margin: var(--space-md, 16px) 0 0; font-size: .875rem; color: var(--tinta-suave); }
+  .ajuda-rodape { padding: var(--space-sm, 12px) var(--space-lg, 24px) var(--space-md, 16px); display: flex; justify-content: flex-end; }
+  .ajuda-ok { border: 0; background: var(--verde); color: var(--sobre-verde); font-weight: 700; min-height: 40px; padding: 0 var(--space-lg, 24px);
+              border-radius: 10px; cursor: pointer; }
   .ajuda-ok:hover { background: var(--verde-forte); }
   @media (max-width: 560px) {
     .ajuda-lista { grid-template-columns: 1fr; gap: var(--space-3xs, 2px); }
@@ -666,6 +678,9 @@ pre.sql { min-height: 4.5em; }
   "use strict";
   var d = document.getElementById("ajuda");
   var CHAVE = "assistenteRM.apresentacao";
+  // mostra só o texto da tela atual (a Lista de campos tem a lista #escolhidos)
+  var tela = document.getElementById("escolhidos") ? "lista" : "conversa";
+  Array.prototype.forEach.call(d.querySelectorAll(".ajuda-tela"), function (b) { b.hidden = b.getAttribute("data-tela") !== tela; });
   function abrir() { if (d.showModal) { if (!d.open) d.showModal(); } else d.setAttribute("open", ""); }
   function fechar() { if (d.close) d.close(); else d.removeAttribute("open"); }
   d.addEventListener("close", function () { try { localStorage.setItem(CHAVE, "1"); } catch (e) { } });
@@ -1296,6 +1311,7 @@ pre.sql { min-height: 4.5em; }
   function svg(corpo) { return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + corpo + "</svg>"; }
   var SVG_OK = svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
   var SVG_SUBIR = svg('<path d="M6 15l6-6 6 6"/>');
+  var SVG_VOLTAR = svg('<path d="M15 6l-6 6 6 6"/>');
   var SVG_DESCER = svg('<path d="M6 9l6 6 6-6"/>');
   var SVG_FUNIL = svg('<path d="M4 5h16l-6 7.5V18l-4 2v-7.5z"/>');
   var SVG_ALCA = svg('<circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/>' +
@@ -1489,6 +1505,13 @@ pre.sql { min-height: 4.5em; }
       area.appendChild(caixa);
       return;
     }
+    // tabela aberta ou busca: botão para voltar à tela inicial (grupos e campos mais usados)
+    area.appendChild(el("div", { "class": "linha-voltar" }, [
+      el("button", { "class": "mini botao-voltar", type: "button", title: "Voltar aos grupos e campos mais usados",
+        html: SVG_VOLTAR + "Voltar",
+        onclick: function () { $("q").value = ""; $("filtroTabela").value = ""; renderResultados(); $("q").focus(); } }),
+      el("span", { "class": "onde", texto: tabela ? tabela + " — " + (T[tabela].d || "") : "Busca: “" + q.trim() + "”" })
+    ]));
     var achados = buscar(q, tabela);
     if (!achados.length) {
       area.appendChild(el("p", { "class": "contagem", texto: "Nenhum campo encontrado. Tente outra palavra (sem acento também funciona) ou procure em todas as tabelas." }));
@@ -1760,10 +1783,10 @@ pre.sql { min-height: 4.5em; }
 
     if (!estado.escolhidos.length) {
       pre.textContent = "-- Adicione pelo menos um campo para montar a consulta.";
-      $("copiar").disabled = $("baixar").disabled = $("executar").disabled = true;
+      $("copiar").disabled = $("baixar").disabled = $("executar").disabled = $("executarTopo").disabled = true;
       return;
     }
-    $("copiar").disabled = $("baixar").disabled = $("executar").disabled = false;
+    $("copiar").disabled = $("baixar").disabled = $("executar").disabled = $("executarTopo").disabled = false;
 
     var raiz = raizEscolhida(tabelas);
     var plano;
@@ -1819,6 +1842,7 @@ pre.sql { min-height: 4.5em; }
     else plano_b();
   });
   $("executar").addEventListener("click", function () { window.__executar.executar($("sql").textContent); });
+  $("executarTopo").addEventListener("click", function () { window.__executar.executar($("sql").textContent); });
   $("baixar").addEventListener("click", function () {
     var blob = new Blob(["﻿" + $("sql").textContent + "\n"], { type: "text/plain;charset=utf-8" });
     var a = el("a", { href: URL.createObjectURL(blob), download: "consulta-rm.sql" });
