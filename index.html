@@ -408,11 +408,19 @@ body .exec-tabela th { background: var(--c-sup2); }
 .etapa-corpo { display: grid; background: var(--c-sup); border: 1px solid var(--c-regua); border-top: 0; border-radius: 0 0 var(--r-cartao) var(--r-cartao);
                overflow: hidden; box-shadow: var(--sombra-2); }
 .formulario { display: flex; flex-wrap: wrap; gap: var(--space-xs); padding: var(--space-2xs) var(--space-md) var(--space-md); }
-.formulario li { display: inline-flex; align-items: center; gap: var(--space-xs); min-height: 40px; padding: var(--space-2xs) var(--space-2xs) var(--space-2xs) var(--space-sm);
+.formulario li { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs); min-height: 40px; padding: var(--space-2xs) var(--space-2xs) var(--space-2xs) var(--space-sm);
                  border: 1px solid var(--c-regua); border-radius: var(--r-tecla); background: var(--c-sup2); max-width: 100%; }
 .formulario li .campo-ref { max-width: 14rem; }
 .formulario select { min-height: 30px; max-width: 11rem; }
 .icone-btn { width: 30px; height: 30px; }
+.ordem-btns { display: flex; gap: 2px; }
+.ordem-btns .icone-btn, .icone-btn.ordem { width: 24px; height: 24px; }
+.icone-btn.ordem:hover { background: var(--c-sup); border-color: var(--c-regua); color: var(--c-tinta); }
+.icone-btn.ordem:disabled { opacity: .35; cursor: not-allowed; }
+.icone-btn.ordem:disabled:hover { background: transparent; border-color: transparent; }
+.campo-rotulo { min-width: 6rem; max-width: 9rem; min-height: 30px; padding: 0 var(--space-xs); border: 1px solid var(--c-regua);
+                border-radius: var(--r-tecla); background: var(--c-sup); color: var(--c-tinta); font: inherit; font-size: var(--text-sm); }
+.formulario select.campo-operacao { max-width: 8rem; }
 .painel-sql { border-top: 1px solid var(--c-cod-regua); }
 .avisos { padding: var(--space-sm) var(--space-md) var(--space-md); }
 @media (max-width: 640px) { .formulario li { width: 100%; } .formulario li .campo-ref { flex: 1; max-width: none; } }
@@ -1545,6 +1553,28 @@ body .exec-tabela th { background: var(--c-sup2); }
       });
       return e;
     }
+    function moverCampo(estado, chave, delta) {
+      var e = clonar(estado), i = -1;
+      e.campos.forEach(function (x, j) { if (x.chave === chave) i = j; });
+      var k = i + delta;
+      if (i < 0 || k < 0 || k >= e.campos.length) return estado;
+      var tmp = e.campos[i]; e.campos[i] = e.campos[k]; e.campos[k] = tmp;
+      return e;
+    }
+    function renomearCampo(estado, chave, rotulo) {
+      var e = clonar(estado);
+      e.campos.forEach(function (x) { if (x.chave === chave) x.rotulo = rotulo; });
+      return e;
+    }
+    var OPERACOES_CAMPO = { soma: "SUM", media: "AVG", contagem: "COUNT", minimo: "MIN", maximo: "MAX" };
+    function definirOperacao(estado, chave, operacao) {
+      var e = clonar(estado);
+      e.campos.forEach(function (x) {
+        if (x.chave !== chave) return;
+        if (operacao && OPERACOES_CAMPO[operacao]) x.operacao = operacao; else delete x.operacao;
+      });
+      return e;
+    }
 
     // ---------- SQL ----------
     function nomeColuna(r) {
@@ -1581,15 +1611,17 @@ body .exec-tabela th { background: var(--c-sup2); }
       plano.passos.forEach(function (p) { if (!al[p.tabela]) al[p.tabela] = p.alias; });
 
       var usados = {}, agrupar = [];
-      var temTotal = estado.campos.some(function (c) { return c.agregado; });
+      var ehAgregado = function (c) { return !!(c.agregado || c.operacao); };
+      var temTotal = estado.campos.some(ehAgregado);
       // com totais, as colunas descritivas (chapa, nome...) vêm antes das somas
-      var campos = temTotal ? estado.campos.filter(function (c) { return !c.agregado; })
-                                .concat(estado.campos.filter(function (c) { return c.agregado; }))
+      var campos = temTotal ? estado.campos.filter(function (c) { return !ehAgregado(c); })
+                                .concat(estado.campos.filter(ehAgregado))
                             : estado.campos;
       var sel = campos.map(function (c) {
         var expr = c.expr ? c.expr.replace(/\{(\w+)\.(\w+)\}/g, function (m, t, col) { return al[t] + "." + col; })
                           : al[c.t] + "." + c.c;
-        if (temTotal && !c.agregado) agrupar.push(expr);
+        if (c.operacao && OPERACOES_CAMPO[c.operacao]) expr = OPERACOES_CAMPO[c.operacao] + "(" + expr + ")";
+        if (temTotal && !ehAgregado(c)) agrupar.push(expr);
         var r = nomeColuna(c.rotulo), base = r, k = 2;
         while (usados[r.toUpperCase()]) { r = base + "_" + k; k++; }
         usados[r.toUpperCase()] = 1;
@@ -1623,7 +1655,7 @@ body .exec-tabela th { background: var(--c-sup2); }
       var ordem = null;
       var co = estado.campos.filter(function (c) { return c.chave === estado.ordem; })[0];
       if (!co && estado.ordem !== false) co = estado.campos.filter(function (c) { return c.chave === "PFUNC.NOME" || c.chave === "PFDEPEND.NOME"; })[0];
-      if (co) ordem = co.expr ? null : al[co.t] + "." + co.c;
+      if (co) ordem = (co.expr || co.operacao) ? null : al[co.t] + "." + co.c;
       if (estado.entidade === "dependentes" && ordem === "PFDEPEND.NOME" && estado.campos.some(function (c) { return c.chave === "PFUNC.NOME"; })) {
         ordem = "PFUNC.NOME, PFDEPEND.NOME";
       }
@@ -1646,18 +1678,23 @@ body .exec-tabela th { background: var(--c-sup2); }
         } else if (/sem cardinalidade/.test(a)) avisos.push(a);
       });
       if (estado.entidade === "dependentes") avisos.unshift("Uma linha por dependente.");
-      if (al.PFFINANC) {
-        if (temTotal) avisos.unshift("Os valores são somados por " + (agrupar.length ? "linha (agrupando pelas outras colunas)." : "toda a consulta."));
-        else if (estado.entidade === "ficha" || estado.campos.some(function (c) { return tabelasDoCampo(c).indexOf("PFFINANC") >= 0 || tabelasDoCampo(c).indexOf("PEVENTO") >= 0; })) {
-          avisos.unshift("Uma linha por evento lançado na ficha financeira de cada funcionário.");
-        }
-        if (!f.competencia) avisos.push("Sem filtro de competência a consulta traz todo o histórico da ficha financeira. Diga, por exemplo, “de outubro de 2024” ou “10/2024”.");
+      if (temTotal) {
+        avisos.unshift("Os valores com uma operação (soma, média, contagem...) são calculados por " +
+          (agrupar.length ? "linha (agrupando pelas outras colunas)." : "toda a consulta."));
+      } else if (al.PFFINANC && (estado.entidade === "ficha" || estado.campos.some(function (c) {
+        return tabelasDoCampo(c).indexOf("PFFINANC") >= 0 || tabelasDoCampo(c).indexOf("PEVENTO") >= 0;
+      }))) {
+        avisos.unshift("Uma linha por evento lançado na ficha financeira de cada funcionário.");
+      }
+      if (al.PFFINANC && !f.competencia) {
+        avisos.push("Sem filtro de competência a consulta traz todo o histórico da ficha financeira. Diga, por exemplo, “de outubro de 2024” ou “10/2024”.");
       }
       return { sql: sql, avisos: avisos };
     }
 
     return { interpretar: interpretar, montarSQL: montarSQL, adicionarCampo: adicionarCampo, removerCampo: removerCampo,
-             trocarCampo: trocarCampo, sugerir: sugerir, normalizar: normalizar, existeColuna: existeColuna };
+             trocarCampo: trocarCampo, moverCampo: moverCampo, renomearCampo: renomearCampo, definirOperacao: definirOperacao,
+             sugerir: sugerir, normalizar: normalizar, existeColuna: existeColuna };
   }
 
   var api = { criar: criar };
@@ -1733,7 +1770,9 @@ body .exec-tabela th { background: var(--c-sup2); }
     executar: '<path d="M8 5.5v13l10.5-6.5z"/>',
     fechar: '<path d="M6 6l12 12M18 6L6 18"/>',
     aviso: '<path d="M12 8v5M12 16.5v.5"/><circle cx="12" cy="12" r="9"/>',
-    desfazer: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>'
+    desfazer: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
+    subir: '<path d="M6 15l6-6 6 6"/>',
+    descer: '<path d="M6 9l6 6 6-6"/>'
   };
   function icone(nome) {
     var s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -1892,18 +1931,54 @@ body .exec-tabela th { background: var(--c-sup2); }
     ]);
   }
 
+  var OPERACOES = [["", "sem operação"], ["soma", "Soma"], ["media", "Média"], ["contagem", "Contagem"],
+                    ["minimo", "Mínimo"], ["maximo", "Máximo"]];
   function etapaConsulta() {
     if (!estado || !estado.campos.length) return [];
     // mesma ordem do SQL: com totais, as colunas descritivas vêm antes das somas
-    var temTotal = estado.campos.some(function (c) { return c.agregado; });
-    var campos = temTotal ? estado.campos.filter(function (c) { return !c.agregado; }).concat(estado.campos.filter(function (c) { return c.agregado; }))
+    var temTotal = estado.campos.some(function (c) { return c.agregado || c.operacao; });
+    var campos = temTotal ? estado.campos.filter(function (c) { return !(c.agregado || c.operacao); })
+                                .concat(estado.campos.filter(function (c) { return c.agregado || c.operacao; }))
                           : estado.campos;
+    // posição real no estado (não na ordem de exibição acima) para saber se dá pra subir/descer
+    var posicao = {};
+    estado.campos.forEach(function (x, j) { posicao[x.chave] = j; });
     var ol = el("ol", { "class": "formulario", "aria-label": "Campos da consulta" });
     campos.forEach(function (c) {
+      var i = posicao[c.chave];
+      var subir = el("button", { "class": "icone-btn ordem", type: "button", title: "Subir " + c.nome, disabled: i === 0 ? "disabled" : null },
+        [icone("subir"), el("span", { "class": "oculto", texto: "Subir " + c.nome })]);
+      subir.addEventListener("click", function () { estado = A.moverCampo(estado, c.chave, -1); responderAcao("Reordenei " + c.nome + "."); });
+      var descer = el("button", { "class": "icone-btn ordem", type: "button", title: "Descer " + c.nome,
+        disabled: i === estado.campos.length - 1 ? "disabled" : null },
+        [icone("descer"), el("span", { "class": "oculto", texto: "Descer " + c.nome })]);
+      descer.addEventListener("click", function () { estado = A.moverCampo(estado, c.chave, 1); responderAcao("Reordenei " + c.nome + "."); });
+
+      var rotulo = el("input", { type: "text", "class": "campo-rotulo", value: c.rotulo || "",
+        "aria-label": "Título da coluna para " + c.nome, title: "Título da coluna no resultado" });
+      rotulo.addEventListener("keydown", function (ev) { if (ev.key === "Enter") rotulo.blur(); });
+      rotulo.addEventListener("blur", function () {
+        var v = rotulo.value.trim();
+        if (v && v !== c.rotulo) { estado = A.renomearCampo(estado, c.chave, v); responderAcao("Renomeei a coluna de " + c.nome + " para " + v + "."); }
+        else rotulo.value = c.rotulo || "";
+      });
+
       var li = el("li", null, [
+        el("div", { "class": "ordem-btns" }, [subir, descer]),
         el("span", { "class": "campo-nome", texto: nomeBonito(c.nome) }),
-        el("span", { "class": "campo-ref", texto: c.expr ? (c.agregado ? "soma calculada" : "calculado") : c.t + "." + c.c })
+        el("span", { "class": "campo-ref", texto: c.expr ? (c.agregado ? "soma calculada" : "calculado") : c.t + "." + c.c }),
+        rotulo
       ]);
+      if (!c.expr) {
+        var opSel = el("select", { "class": "campo-operacao", "aria-label": "Operação em " + c.nome });
+        OPERACOES.forEach(function (o) { opSel.appendChild(el("option", { value: o[0], texto: o[1], selected: (c.operacao || "") === o[0] ? "selected" : null })); });
+        opSel.addEventListener("change", function (ev) {
+          var v = ev.target.value, rotuloOp = opSel.options[opSel.selectedIndex].text;
+          estado = A.definirOperacao(estado, c.chave, v || null);
+          responderAcao(v ? ("Apliquei " + rotuloOp.toLowerCase() + " em " + c.nome + ".") : ("Tirei a operação de " + c.nome + "."));
+        });
+        li.appendChild(opSel);
+      }
       if (c.alternativas && c.alternativas.length) {
         var sel = el("select", { "aria-label": "Trocar " + c.nome, onchange: function (ev) {
           var alt = c.alternativas[+ev.target.value];
@@ -1911,7 +1986,7 @@ body .exec-tabela th { background: var(--c-sup2); }
           responderAcao("Troquei " + c.nome + " por " + alt.nome + ".");
         } });
         sel.appendChild(el("option", { texto: "Trocar por…", value: "" }));
-        c.alternativas.forEach(function (a, i) { sel.appendChild(el("option", { value: i, texto: a.nome })); });
+        c.alternativas.forEach(function (a, i2) { sel.appendChild(el("option", { value: i2, texto: a.nome })); });
         li.appendChild(sel);
       }
       var tirar = el("button", { "class": "icone-btn", type: "button", title: "Tirar " + c.nome }, [icone("fechar"), el("span", { "class": "oculto", texto: "Tirar " + c.nome })]);

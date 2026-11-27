@@ -1614,6 +1614,15 @@ pre.sql { min-height: 4.5em; }
     ol.addEventListener("pointerup", soltar);
     ol.addEventListener("pointercancel", function (ev) { if (arr && ev.pointerId === arr.id) limpar(); });
   })();
+  var OPERACOES_CAMPO = { soma: "SUM", media: "AVG", contagem: "COUNT", minimo: "MIN", maximo: "MAX" };
+  var OPERACOES = [["", "sem operação"], ["soma", "Soma"], ["media", "Média"], ["contagem", "Contagem"],
+                    ["minimo", "Mínimo"], ["maximo", "Máximo"]];
+  function operacaoSelect(x) {
+    var sel = el("select", { "class": "op-campo", "aria-label": "Operação em " + x.t + "." + x.c });
+    OPERACOES.forEach(function (o) { sel.appendChild(el("option", { value: o[0], texto: o[1], selected: (x.op || "") === o[0] ? "selected" : null })); });
+    sel.addEventListener("change", function (ev) { x.op = ev.target.value || null; salvar(); renderSQL(); });
+    return sel;
+  }
   function renderEscolhidos() {
     var ol = $("escolhidos");
     ol.textContent = "";
@@ -1637,6 +1646,7 @@ pre.sql { min-height: 4.5em; }
         el("div", { "class": "origem" }, [x.t + "." + x.c, el("small", { texto: info ? info.desc : "" })]),
         el("div", { "class": "rotulo" }, [inp]),
         el("div", { "class": "acoes-linha" }, [
+          operacaoSelect(x),
           el("button", { "class": "mini", type: "button", title: "Criar um filtro (WHERE) por " + x.t + "." + x.c,
             html: SVG_FUNIL + "Filtrar", onclick: function () { adicionarFiltro(x.t, x.c); } }),
           el("button", { "class": "mini", type: "button", texto: "Remover", onclick: function () { remover(x.t, x.c); } })
@@ -1796,9 +1806,22 @@ pre.sql { min-height: 4.5em; }
     plano.passos.forEach(function (p) { presentes[p.tabela] = p.alias; });
     var avisos = plano.avisos.slice();
 
-    var sel = estado.escolhidos.filter(function (x) { return presentes[x.t]; }).map(function (x) {
-      return "    " + presentes[x.t] + "." + x.c + " AS " + nomeColuna(x.r);
+    var temTotal = estado.escolhidos.some(function (x) { return x.op; });
+    var agrupar = [];
+    // com operações (soma, média...), as colunas sem operação vêm antes e viram o GROUP BY
+    var presentesOrdenados = estado.escolhidos.filter(function (x) { return presentes[x.t]; });
+    if (temTotal) {
+      presentesOrdenados = presentesOrdenados.filter(function (x) { return !x.op; })
+        .concat(presentesOrdenados.filter(function (x) { return x.op; }));
+    }
+    var sel = presentesOrdenados.map(function (x) {
+      var expr = presentes[x.t] + "." + x.c;
+      if (x.op && OPERACOES_CAMPO[x.op]) expr = OPERACOES_CAMPO[x.op] + "(" + expr + ")";
+      else if (temTotal) agrupar.push(expr);
+      return "    " + expr + " AS " + nomeColuna(x.r);
     });
+    if (temTotal) avisos.unshift("Os valores com uma operação (soma, média, contagem...) são calculados por " +
+      (agrupar.length ? "linha (agrupando pelas outras colunas)." : "toda a consulta."));
     var conds = [];
     if (estado.soAtivos && presentes.PFUNC) conds.push(presentes.PFUNC + ".CODSITUACAO <> 'D'");
     var colig = String(estado.coligada || "").trim();
@@ -1815,9 +1838,13 @@ pre.sql { min-height: 4.5em; }
     });
     var sql = "SELECT\n" + sel.join(",\n") + "\n" + Planejador.sqlFrom(plano);
     if (conds.length) sql += "\nWHERE " + conds.join("\n  AND ");
+    if (temTotal && agrupar.length) sql += "\nGROUP BY " + agrupar.join(", ");
     if (estado.ordem) {
       var o = estado.escolhidos.filter(function (x) { return x.t + "." + x.c === estado.ordem && presentes[x.t]; })[0];
-      if (o) sql += "\nORDER BY " + presentes[o.t] + "." + o.c;
+      if (o && !(temTotal && o.op)) {
+        var exprOrdem = presentes[o.t] + "." + o.c;
+        if (!temTotal || agrupar.indexOf(exprOrdem) >= 0) sql += "\nORDER BY " + exprOrdem;
+      }
     }
     pre.innerHTML = Realce.sql(sql);
     avisos.forEach(function (a) { avisosUl.appendChild(el("li", { texto: a })); });
