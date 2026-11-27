@@ -1755,19 +1755,37 @@ body .exec-tabela th { background: var(--c-sup2); }
   }
 
   // ---------- boas-vindas ----------
+  // pool maior que o mostrado de cada vez: sorteia alguns assuntos a cada visita (ver ESCOLHER_EXEMPLOS)
   var EXEMPLOS = [
     ["Cadastro", ["quero uma lista de funcionários com chapa, seção e salário",
                   "funcionários ativos com nome, CPF, data de nascimento e idade",
                   "funcionários da seção comercial com nome e telefone"]],
+    ["Contato", ["funcionários com nome, telefone, e-mail e cidade",
+                 "funcionários da seção comercial com nome, endereço e telefone"]],
+    ["Admissão e desligamento", ["funcionários admitidos a partir de 2024 com nome, chapa e data de admissão",
+                                 "funcionários demitidos com nome, data de demissão e motivo da demissão"]],
+    ["Função e salário", ["funcionários com salário acima de 5000 com nome, função e seção",
+                          "funcionários ativos com nome, cargo e salário"]],
     ["Ficha financeira", ["funcionários com nome, evento e valor de outubro de 2024",
                           "total de proventos, descontos e líquido por funcionário com chapa e nome de 10/2024"]],
+    ["Eventos da folha", ["funcionários com nome e valor do evento hora extra de outubro de 2024"]],
     ["Dependentes", ["dependentes com nome do funcionário, nome, parentesco e idade"]]
   ];
+  var EXEMPLOS_MOSTRADOS = 3;
+  function embaralhar(lista) {
+    var a = lista.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
   function boasVindas() {
+    var grupos = embaralhar(EXEMPLOS).slice(0, EXEMPLOS_MOSTRADOS);
     var tabela = el("table", { "class": "indice" }, [
       el("thead", null, [el("tr", null, [el("th", { scope: "col", texto: "Assunto" }), el("th", { scope: "col", texto: "Pedido de exemplo" })])])
     ]);
-    EXEMPLOS.forEach(function (g) {
+    grupos.forEach(function (g) {
       var corpo = el("tbody");
       g[1].forEach(function (t, i) {
         var tr = el("tr");
