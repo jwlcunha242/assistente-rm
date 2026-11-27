@@ -407,22 +407,44 @@ body .exec-tabela th { background: var(--c-sup2); }
 .etapa > summary .contador { margin-left: auto; }
 .etapa-corpo { display: grid; background: var(--c-sup); border: 1px solid var(--c-regua); border-top: 0; border-radius: 0 0 var(--r-cartao) var(--r-cartao);
                overflow: hidden; box-shadow: var(--sombra-2); }
-.formulario { display: flex; flex-wrap: wrap; gap: var(--space-xs); padding: var(--space-2xs) var(--space-md) var(--space-md); }
-.formulario li { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs); min-height: 40px; padding: var(--space-2xs) var(--space-2xs) var(--space-2xs) var(--space-sm);
-                 border: 1px solid var(--c-regua); border-radius: var(--r-tecla); background: var(--c-sup2); max-width: 100%; }
-.formulario li .campo-ref { max-width: 14rem; }
-.formulario select { min-height: 30px; max-width: 11rem; }
+.formulario { display: block; padding: 0; }
+.formulario li { position: relative; display: grid; grid-template-columns: 24px auto minmax(0, 1fr) minmax(8rem, 16rem) auto auto; align-items: center;
+                 gap: var(--space-sm); padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-xs); background: var(--c-sup);
+                 transition: transform var(--dur-short) var(--ease-out); }
+.formulario li + li { border-top: 1px solid var(--c-regua); }
+.formulario li:hover { background: var(--c-sup2); }
+.formulario .alca { display: grid; place-items: center; width: 24px; height: 32px; border-radius: var(--r-tecla-dentro); color: var(--c-suave); cursor: grab; touch-action: none; }
+.formulario .alca:hover { color: var(--c-tinta); background: var(--c-sup); }
+.formulario .alca svg.ic { fill: currentColor; stroke: none; }
+.formulario .origem { min-width: 0; cursor: grab; user-select: none; display: grid; }
+.formulario .origem .campo-nome { font-family: var(--f-mono); font-size: var(--text-sm); overflow-wrap: anywhere; }
+.formulario li.arrastando { z-index: 2; transition: none; background: var(--c-sup); box-shadow: var(--sombra-2); }
+.formulario.ordenando, .formulario.ordenando * { cursor: grabbing; }
+@media (prefers-reduced-motion: reduce) { .formulario li { transition: none; } }
+.formulario select { min-height: 32px; max-width: 11rem; }
+.formulario li .campo-rotulo { grid-column: 4; }
+.formulario li select { grid-column: 5; }
+.formulario li .btn-remover { grid-column: 6; }
 .icone-btn { width: 30px; height: 30px; }
 .ordem-btns { display: flex; gap: 2px; }
-.ordem-btns .icone-btn, .icone-btn.ordem { width: 24px; height: 24px; }
-.icone-btn.ordem:hover { background: var(--c-sup); border-color: var(--c-regua); color: var(--c-tinta); }
+.ordem-btns .icone-btn, .icone-btn.ordem { width: 26px; height: 32px; border-color: var(--c-regua); }
+.icone-btn.ordem:hover { background: var(--c-sup); border-color: var(--c-regua-forte); color: var(--c-tinta); }
 .icone-btn.ordem:disabled { opacity: .35; cursor: not-allowed; }
-.icone-btn.ordem:disabled:hover { background: transparent; border-color: transparent; }
-.campo-rotulo { min-width: 6rem; max-width: 9rem; min-height: 30px; padding: 0 var(--space-xs); border: 1px solid var(--c-regua);
+.icone-btn.ordem:disabled:hover { background: transparent; border-color: var(--c-regua); }
+.campo-rotulo { width: 100%; min-height: 34px; padding: 0 var(--space-sm); border: 1px solid var(--c-regua);
                 border-radius: var(--r-tecla); background: var(--c-sup); color: var(--c-tinta); font: inherit; font-size: var(--text-sm); }
+.btn-remover { min-height: 32px; padding: 0 var(--space-sm); border: 1px solid var(--c-regua); border-radius: var(--r-tecla); background: var(--c-sup);
+               color: var(--c-tinta); font-size: var(--text-sm); font-weight: 500; cursor: pointer; }
+.btn-remover:hover { background: var(--c-sup2); border-color: var(--c-regua-forte); color: var(--c-erro); }
+.nota-campos { margin: 0; padding: var(--space-xs) var(--space-md); font-size: var(--text-sm); color: var(--c-suave); border-top: 1px solid var(--c-regua); }
 .painel-sql { border-top: 1px solid var(--c-cod-regua); }
 .avisos { padding: var(--space-sm) var(--space-md) var(--space-md); }
-@media (max-width: 640px) { .formulario li { width: 100%; } .formulario li .campo-ref { flex: 1; max-width: none; } }
+@media (max-width: 760px) {
+  .formulario li { grid-template-columns: 24px auto minmax(0, 1fr) auto; }
+  .formulario li .campo-rotulo { grid-column: 2 / -1; }
+  .formulario li select { grid-column: 2 / 4; max-width: none; }
+  .formulario li .btn-remover { grid-column: 4; grid-row: 1; }
+}
 </style>
 <meta name="theme-color" content="#142548" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#04070F" media="(prefers-color-scheme: dark)">
@@ -454,7 +476,7 @@ body .exec-tabela th { background: var(--c-sup2); }
         <svg class="ic tema-lua" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="ic tema-sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span>Modo escuro</span></button>
       <nav class="navegacao" aria-label="Telas">
         <a href="index.html" aria-current="page">Conversa</a>
-        <a href="seletor.html">Lista de campos</a>
+        <a href="seletor.html">Consulta SQL</a>
       </nav>
     </div>
   </div>
@@ -501,7 +523,7 @@ body .exec-tabela th { background: var(--c-sup2); }
       <ul class="ajuda-dicas">
         <li>Para tirar os filtros, escreva “tira os filtros”.</li>
         <li>Quer mudar algo à mão? Clique no SQL e digite.</li>
-        <li>Ele não entendeu uma palavra? Use a <strong>Lista de campos</strong>.</li>
+        <li>Ele não entendeu uma palavra? Use a <strong>Consulta SQL</strong>.</li>
       </ul>
       <details class="ajuda-mais">
         <summary>Ver as palavras que ele entende</summary>
@@ -622,16 +644,37 @@ body .exec-tabela th { background: var(--c-sup2); }
     <div class="exec-acoes">
       <button class="exec-btn principal" id="exec-excel" type="button" disabled>
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
-        <span>Baixar para Excel</span></button>
-      <button class="exec-btn" id="exec-copiar" type="button" disabled>
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
-        <span>Copiar tabela</span></button>
+        <span>Baixar Excel</span></button>
+      <div class="exec-menu">
+        <button class="exec-btn" id="exec-mais" type="button" aria-haspopup="true" aria-expanded="false" disabled>
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg>
+          <span>Mais formatos</span></button>
+        <div class="exec-lista" id="exec-mais-lista" role="menu" hidden>
+          <button type="button" role="menuitem" data-saida="csv"><b>CSV</b><small>Texto separado por ponto e vírgula</small></button>
+          <button type="button" role="menuitem" data-saida="pdf"><b>PDF / Imprimir</b><small>Abre a impressão; escolha “Salvar como PDF”</small></button>
+          <button type="button" role="menuitem" data-saida="email"><b>Enviar por e-mail</b><small>Baixa o Excel e abre o e-mail para anexar</small></button>
+          <button type="button" role="menuitem" data-saida="copiar"><b>Copiar tabela</b><small>Para colar direto no Excel</small></button>
+        </div>
+      </div>
       <button class="exec-btn" id="exec-trocar" type="button" title="Escolher outro banco">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>
         <span>Banco</span></button>
       <button class="exec-fechar" type="button" data-fechar-exec aria-label="Fechar">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
+  </div>
+  <div class="exec-barra" id="exec-barra" hidden>
+    <div class="exec-abas" role="tablist" aria-label="Forma de ver o resultado">
+      <button type="button" role="tab" data-aba="tabela" aria-selected="true">Tabela</button>
+      <button type="button" role="tab" data-aba="grafico" aria-selected="false">Gráfico</button>
+    </div>
+    <label class="exec-busca"><span class="oculto">Buscar no resultado</span>
+      <input id="exec-busca" type="search" placeholder="Buscar no resultado" autocomplete="off"></label>
+    <div class="exec-menu">
+      <button class="exec-btn" id="exec-colunas" type="button" aria-haspopup="true" aria-expanded="false"><span>Colunas</span></button>
+      <div class="exec-lista exec-lista-col" id="exec-colunas-lista" hidden></div>
+    </div>
+    <span class="exec-contagem" id="exec-contagem"></span>
   </div>
   <div class="exec-corpo" id="exec-corpo"></div>
 </dialog>
@@ -745,6 +788,38 @@ body .exec-tabela th { background: var(--c-sup2); }
     .exec-rodape .exec-dica { flex-basis: 100%; }
     .exec-rodape .exec-btn span { display: inline; }
   }
+
+  /* barra do resultado: abas, busca, colunas */
+  .exec-barra { display: flex; align-items: center; gap: var(--space-sm, 12px); flex-wrap: wrap; padding: 8px 14px 8px 20px; border-bottom: 1px solid var(--linha-suave); background: var(--faixa); }
+  .exec-barra[hidden] { display: none; }
+  .exec-abas { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--linha); border-radius: 9px; background: var(--superficie); }
+  .exec-abas button { border: 0; background: transparent; color: var(--tinta-suave); font: inherit; font-size: .875rem; font-weight: 700; padding: 5px 14px; border-radius: 7px; cursor: pointer; }
+  .exec-abas button[aria-selected="true"] { background: var(--verde); color: var(--sobre-verde); }
+  .exec-busca input { font: inherit; font-size: .875rem; min-width: 14rem; padding: 6px 10px; border: 1px solid var(--linha); border-radius: 9px; background: var(--superficie); color: var(--tinta); }
+  .exec-contagem { margin-left: auto; color: var(--tinta-suave); font-size: .8125rem; font-variant-numeric: tabular-nums; }
+  .exec-menu { position: relative; }
+  .exec-lista { position: absolute; top: calc(100% + 6px); right: 0; z-index: 5; min-width: 17rem; max-height: 60vh; overflow: auto; padding: 4px;
+                background: var(--superficie); border: 1px solid var(--linha); border-radius: 12px; box-shadow: var(--sombra-dialogo); }
+  .exec-lista[hidden] { display: none; }
+  .exec-lista-col { right: auto; left: 0; }
+  .exec-lista button { display: grid; width: 100%; text-align: left; gap: 1px; border: 0; background: transparent; color: var(--tinta); font: inherit; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+  .exec-lista button:hover { background: var(--verde-suave); }
+  .exec-lista small { color: var(--tinta-suave); font-size: .75rem; }
+  .exec-lista label { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: .875rem; }
+  .exec-lista label:hover { background: var(--verde-suave); }
+  .exec-lista input { accent-color: var(--verde); }
+  .exec-tabela th.ordenavel { cursor: pointer; user-select: none; }
+  .exec-tabela th.ordenavel:hover { background: var(--faixa); }
+  .exec-tabela th .seta { display: inline-block; width: 1em; color: var(--verde); }
+  .exec-tabela tfoot td { position: sticky; bottom: 0; z-index: 1; background: var(--verde-suave); font-weight: 700; border-top: 1px solid var(--linha); border-bottom: 0; }
+  .exec-grafico { display: grid; gap: var(--space-md, 16px); padding: 16px 20px 24px; }
+  .exec-grafico-opcoes { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+  .exec-grafico-opcoes label { display: grid; gap: 3px; font-size: .8125rem; font-weight: 700; color: var(--tinta-suave); }
+  .exec-grafico-opcoes select { font: inherit; font-size: .875rem; font-weight: 400; min-height: 34px; padding: 0 8px; border: 1px solid var(--linha); border-radius: 8px; background: var(--superficie); color: var(--tinta); max-width: 16rem; }
+  .exec-grafico svg { width: 100%; height: auto; max-width: 1100px; color: var(--tinta); }
+  .exec-grafico svg text { fill: currentColor; font-family: inherit; }
+  .exec-grafico .nota { margin: 0; color: var(--tinta-suave); font-size: .8125rem; }
+  @media (max-width: 640px) { .exec-busca input { min-width: 0; width: 100%; } .exec-busca { flex: 1 1 100%; order: 3; } .exec-lista { right: 0; left: auto; } .exec-lista-col { left: 0; right: auto; } }
 </style>
 <script>
 (function () {
@@ -801,42 +876,286 @@ body .exec-tabela th { background: var(--c-sup2); }
   }
   function el(tag, classe, texto) { var e = document.createElement(tag); if (classe) e.className = classe; if (texto !== undefined) e.textContent = texto; return e; }
   function descricaoBanco() { return conexao ? conexao.banco + " em " + conexao.servidor : ""; }
+  function ehNum(i) { var t = ultimo.tipos[i]; return t === "n" || t === "i"; }
+  function norm(s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
-  function mostrarTabela(r) {
-    var corpo = $("exec-corpo"); corpo.textContent = "";
-    if (!r.colunas.length || !r.total) {
+  // ---------- vista: busca, ordem, colunas escondidas, aba ----------
+  var V = null;
+  function iniciarVista(r) {
+    var cat = 0, val = -1;
+    // agrupar por: a primeira coluna de texto que se repete (seção, função...); sem isso, a primeira de texto
+    var achou = false;
+    for (var i = 0; i < r.colunas.length && !achou; i++) {
+      if (r.tipos[i] !== "t") continue;
+      var vistos = Object.create(null), n = 0;
+      r.linhas.slice(0, 2000).forEach(function (l) { if (l[i] !== null && !vistos[l[i]]) { vistos[l[i]] = 1; n++; } });
+      if (n > 1 && n <= Math.min(r.linhas.length, 2000) / 2) { cat = i; achou = true; }
+    }
+    if (!achou) for (var i2 = 0; i2 < r.colunas.length; i2++) { if (r.tipos[i2] === "t" || r.tipos[i2] === "d") { cat = i2; break; } }
+    for (var j = 0; j < r.colunas.length; j++) { if (r.tipos[j] === "n") { val = j; break; } }
+    V = { busca: "", ordem: -1, dir: 1, ocultas: {}, aba: "tabela", graf: { tipo: "barras", cat: cat, val: val, n: 10 } };
+    $("exec-busca").value = "";
+    montarMenuColunas();
+    marcarAba();
+    $("exec-barra").hidden = !r.total;
+    desenhar();
+  }
+  function visiveis() {
+    var out = [];
+    ultimo.colunas.forEach(function (c, i) { if (!V.ocultas[i]) out.push(i); });
+    return out;
+  }
+  function linhasVista() {
+    var r = ultimo, L = r.linhas, q = norm(V.busca.trim()), vis = visiveis();
+    if (q) {
+      L = L.filter(function (l) {
+        return vis.some(function (i) { return l[i] !== null && norm(paraTela(l[i], r.tipos[i])).indexOf(q) >= 0; });
+      });
+    }
+    if (V.ordem >= 0 && !V.ocultas[V.ordem]) {
+      var i = V.ordem, t = r.tipos[i], num = t === "n" || t === "i";
+      L = L.slice().sort(function (a, b) {
+        var x = a[i], y = b[i];
+        if (x === null) return y === null ? 0 : 1;
+        if (y === null) return -1;
+        var c = num ? parseFloat(x) - parseFloat(y) : (t === "d" ? (x < y ? -1 : x > y ? 1 : 0) : x.localeCompare(y, "pt-BR", { numeric: true }));
+        return c * V.dir;
+      });
+    }
+    return L;
+  }
+  function marcarAba() {
+    Array.prototype.forEach.call(document.querySelectorAll(".exec-abas button"), function (b) {
+      b.setAttribute("aria-selected", b.getAttribute("data-aba") === V.aba ? "true" : "false");
+    });
+    $("exec-colunas").parentNode.hidden = V.aba !== "tabela";
+    $("exec-busca").parentNode.hidden = false;
+  }
+  function desenhar() {
+    if (!ultimo || !V) return;
+    if (!ultimo.colunas.length || !ultimo.total) {
       estado("", [el("h3", "", "Nenhuma linha encontrada"), el("p", "", "A consulta rodou certo, mas não trouxe dados. Confira os filtros (competência, situação, coligada).")]);
       return;
     }
-    if (r.cortado || r.total > MOSTRAR) {
-      var avisos = [];
-      if (r.cortado) avisos.push("A consulta trouxe mais de " + r.total.toLocaleString("pt-BR") + " linhas e parei nesse limite. Coloque um filtro (competência, seção, coligada) para trazer menos.");
-      if (r.total > MOSTRAR) avisos.push("A tela mostra as primeiras " + MOSTRAR.toLocaleString("pt-BR") + " linhas; o arquivo do Excel leva todas as " + r.total.toLocaleString("pt-BR") + ".");
-      corpo.appendChild(el("p", "exec-nota", avisos.join(" ")));
-    }
+    if (V.aba === "grafico") mostrarGrafico(); else mostrarTabela();
+  }
+  function atualizarContagem(n) {
+    var tot = ultimo.total;
+    $("exec-contagem").textContent = n === tot ? "" : plural(n, "linha", "linhas") + " de " + tot.toLocaleString("pt-BR") + " na busca";
+  }
+
+  function somaColuna(L, i) {
+    var s = 0;
+    L.forEach(function (l) { if (l[i] !== null) s += parseFloat(l[i]); });
+    return s;
+  }
+  function fmtTotal(s) { return numBR((Math.round(s * 100) / 100).toFixed(2), true); }
+
+  function mostrarTabela() {
+    var r = ultimo, corpo = $("exec-corpo"), L = linhasVista(), vis = visiveis();
+    corpo.textContent = "";
+    atualizarContagem(L.length);
+    var avisos = [];
+    if (r.cortado) avisos.push("A consulta trouxe mais de " + r.total.toLocaleString("pt-BR") + " linhas e parei nesse limite. Coloque um filtro (competência, seção, coligada) para trazer menos.");
+    if (L.length > MOSTRAR) avisos.push("A tela mostra as primeiras " + MOSTRAR.toLocaleString("pt-BR") + " linhas; o Excel, o CSV e os totais levam todas as " + L.length.toLocaleString("pt-BR") + ".");
+    if (avisos.length) corpo.appendChild(el("p", "exec-nota", avisos.join(" ")));
+    if (!L.length) { corpo.appendChild(el("p", "exec-nota", "Nenhuma linha combina com a busca.")); return; }
+    if (!vis.length) { corpo.appendChild(el("p", "exec-nota", "Todas as colunas estão escondidas. Use o botão Colunas.")); return; }
     var tab = el("table", "exec-tabela"), thead = el("thead"), tr = el("tr"), tbody = el("tbody");
     tr.appendChild(el("th", "n-linha", "#"));
-    r.colunas.forEach(function (c, i) { var th = el("th", r.tipos[i] === "n" || r.tipos[i] === "i" ? "num" : "", c); th.scope = "col"; tr.appendChild(th); });
+    vis.forEach(function (i) {
+      var th = el("th", "ordenavel" + (ehNum(i) ? " num" : ""));
+      th.scope = "col"; th.tabIndex = 0; th.title = "Clique para ordenar";
+      th.setAttribute("aria-sort", V.ordem === i ? (V.dir > 0 ? "ascending" : "descending") : "none");
+      th.appendChild(document.createTextNode(r.colunas[i] + " "));
+      th.appendChild(el("span", "seta", V.ordem === i ? (V.dir > 0 ? "▲" : "▼") : ""));
+      var ordenar = function () {
+        if (V.ordem !== i) { V.ordem = i; V.dir = 1; } else if (V.dir > 0) V.dir = -1; else V.ordem = -1;
+        desenhar();
+      };
+      th.addEventListener("click", ordenar);
+      th.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); ordenar(); } });
+      tr.appendChild(th);
+    });
     thead.appendChild(tr); tab.appendChild(thead);
     var frag = document.createDocumentFragment();
-    r.linhas.slice(0, MOSTRAR).forEach(function (l, n) {
+    L.slice(0, MOSTRAR).forEach(function (l, n) {
       var linha = el("tr");
       linha.appendChild(el("td", "n-linha", String(n + 1)));
-      l.forEach(function (v, i) {
-        var t = r.tipos[i], td = el("td", (t === "n" || t === "i" ? "num" : "") + (v === null ? " nulo" : ""), v === null ? "—" : paraTela(v, t));
+      vis.forEach(function (i) {
+        var v = l[i], t = r.tipos[i], td = el("td", (t === "n" || t === "i" ? "num" : "") + (v === null ? " nulo" : ""), v === null ? "—" : paraTela(v, t));
         if (v !== null && v.length > 40) td.title = v;
         linha.appendChild(td);
       });
       frag.appendChild(linha);
     });
-    tbody.appendChild(frag); tab.appendChild(tbody); corpo.appendChild(tab);
+    tbody.appendChild(frag); tab.appendChild(tbody);
+    if (vis.some(function (i) { return r.tipos[i] === "n"; })) {
+      var tf = el("tfoot"), ft = el("tr");
+      ft.appendChild(el("td", "n-linha", "Σ"));
+      vis.forEach(function (i) {
+        var num = r.tipos[i] === "n";
+        var td = el("td", num ? "num" : "", num ? fmtTotal(somaColuna(L, i)) : (i === vis[0] ? "Total" : ""));
+        ft.appendChild(td);
+      });
+      tf.appendChild(ft); tab.appendChild(tf);
+    }
+    corpo.appendChild(tab);
   }
 
+  function montarMenuColunas() {
+    var box = $("exec-colunas-lista"); box.textContent = "";
+    ultimo.colunas.forEach(function (c, i) {
+      var lab = el("label"), cb = document.createElement("input");
+      cb.type = "checkbox"; cb.checked = true;
+      cb.addEventListener("change", function () {
+        if (cb.checked) delete V.ocultas[i]; else V.ocultas[i] = true;
+        if (!visiveis().length) { cb.checked = true; delete V.ocultas[i]; return; }
+        desenhar();
+      });
+      lab.appendChild(cb); lab.appendChild(document.createTextNode(c));
+      box.appendChild(lab);
+    });
+  }
+
+  // ---------- gráfico ----------
+  var CORES = ["#3b82f6", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899", "#84cc16", "#94a3b8"];
+  function fmtValor(v, inteiro) {
+    return inteiro ? Math.round(v).toLocaleString("pt-BR") : numBR((Math.round(v * 100) / 100).toFixed(2), true);
+  }
+  function pontosGrafico() {
+    var r = ultimo, g = V.graf, L = linhasVista(), mapa = Object.create(null), lista = [];
+    L.forEach(function (l) {
+      var bruto = l[g.cat], k = bruto === null ? "(vazio)" : paraTela(bruto, r.tipos[g.cat]), m = mapa[k];
+      if (!m) { m = mapa[k] = { rotulo: k, bruto: bruto === null ? "" : bruto, v: 0, n: 0 }; lista.push(m); }
+      m.n++;
+      if (g.val >= 0 && l[g.val] !== null) m.v += parseFloat(l[g.val]);
+    });
+    var pontos = lista.map(function (m) { return { rotulo: m.rotulo, bruto: m.bruto, valor: g.val >= 0 ? m.v : m.n }; });
+    var total = pontos.length;
+    if (g.tipo === "linhas") {
+      var t = r.tipos[g.cat];
+      pontos.sort(function (a, b) {
+        return t === "n" || t === "i" ? parseFloat(a.bruto) - parseFloat(b.bruto) : (a.bruto < b.bruto ? -1 : a.bruto > b.bruto ? 1 : 0);
+      });
+      if (g.n && pontos.length > g.n) pontos = pontos.slice(pontos.length - g.n);   // os mais recentes
+    } else {
+      pontos.sort(function (a, b) { return b.valor - a.valor; });
+      if (g.n && pontos.length > g.n) {
+        if (g.tipo === "pizza") {
+          var resto = pontos.slice(g.n - 1).reduce(function (s, p) { return s + p.valor; }, 0);
+          pontos = pontos.slice(0, g.n - 1).concat([{ rotulo: "Outros", valor: resto }]);
+        } else pontos = pontos.slice(0, g.n);
+      }
+    }
+    return { pontos: pontos, total: total, inteiro: g.val < 0 || ultimo.tipos[g.val] === "i" };
+  }
+  function corte(s, n) { return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+  var NS = "http://www.w3.org/2000/svg";
+  function sv(tag, attrs, texto) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (texto !== undefined) e.textContent = texto;
+    return e;
+  }
+  function svgBarras(d) {
+    var P = d.pontos, W = 1000, esq = 250, dir = 130, alt = 30, H = P.length * alt + 16;
+    var s = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Gráfico de barras" });
+    var max = Math.max.apply(null, P.map(function (p) { return p.valor; }).concat([1e-9]));
+    P.forEach(function (p, i) {
+      var y = 8 + i * alt, w = Math.max(0, p.valor / max) * (W - esq - dir);
+      var t = sv("text", { x: esq - 10, y: y + 18, "text-anchor": "end", "font-size": 14 }, corte(p.rotulo, 34));
+      t.appendChild(sv("title", {}, p.rotulo));
+      s.appendChild(t);
+      s.appendChild(sv("rect", { x: esq, y: y + 3, width: w, height: alt - 8, rx: 4, fill: CORES[0] }));
+      s.appendChild(sv("text", { x: esq + w + 8, y: y + 18, "font-size": 13 }, fmtValor(p.valor, d.inteiro)));
+    });
+    return s;
+  }
+  function svgLinhas(d) {
+    var P = d.pontos, W = 1000, H = 420, e = 90, dd = 30, topo = 20, base = 70;
+    var s = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Gráfico de linhas" });
+    var max = Math.max.apply(null, P.map(function (p) { return p.valor; }).concat([1e-9])), min = Math.min.apply(null, P.map(function (p) { return p.valor; }).concat([0]));
+    var span = max - min || 1, area = H - topo - base, larg = W - e - dd;
+    for (var g = 0; g <= 4; g++) {
+      var y = topo + area - area * g / 4;
+      s.appendChild(sv("line", { x1: e, x2: W - dd, y1: y, y2: y, stroke: "currentColor", "stroke-opacity": ".15" }));
+      s.appendChild(sv("text", { x: e - 8, y: y + 4, "text-anchor": "end", "font-size": 12 }, fmtValor(min + span * g / 4, d.inteiro)));
+    }
+    var X = function (i) { return P.length === 1 ? e + larg / 2 : e + larg * i / (P.length - 1); };
+    var Y = function (v) { return topo + area - area * (v - min) / span; };
+    s.appendChild(sv("polyline", { points: P.map(function (p, i) { return X(i) + "," + Y(p.valor); }).join(" "), fill: "none", stroke: CORES[0], "stroke-width": 3, "stroke-linejoin": "round" }));
+    var passo = Math.ceil(P.length / 12);
+    P.forEach(function (p, i) {
+      var c = sv("circle", { cx: X(i), cy: Y(p.valor), r: 4, fill: CORES[0] });
+      c.appendChild(sv("title", {}, p.rotulo + ": " + fmtValor(p.valor, d.inteiro)));
+      s.appendChild(c);
+      if (i % passo === 0 || i === P.length - 1) {
+        var tx = sv("text", { x: X(i), y: H - base + 20, "text-anchor": "end", "font-size": 12, transform: "rotate(-35 " + X(i) + " " + (H - base + 20) + ")" }, corte(p.rotulo, 18));
+        s.appendChild(tx);
+      }
+    });
+    return s;
+  }
+  function svgPizza(d) {
+    var P = d.pontos.filter(function (p) { return p.valor > 0; }), W = 1000, H = Math.max(360, P.length * 28 + 40), cx = 200, cy = H / 2, R = Math.min(170, H / 2 - 16);
+    var s = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Gráfico de pizza" });
+    var total = P.reduce(function (a, p) { return a + p.valor; }, 0) || 1, ang = -Math.PI / 2;
+    P.forEach(function (p, i) {
+      var fat = p.valor / total, a2 = ang + fat * 2 * Math.PI, cor = CORES[i % CORES.length], f;
+      if (fat > 0.9999) f = sv("circle", { cx: cx, cy: cy, r: R, fill: cor });
+      else {
+        var x1 = cx + R * Math.cos(ang), y1 = cy + R * Math.sin(ang), x2 = cx + R * Math.cos(a2), y2 = cy + R * Math.sin(a2);
+        f = sv("path", { d: "M" + cx + " " + cy + " L" + x1 + " " + y1 + " A" + R + " " + R + " 0 " + (fat > 0.5 ? 1 : 0) + " 1 " + x2 + " " + y2 + " Z", fill: cor, stroke: "#fff", "stroke-width": 1.5 });
+      }
+      f.appendChild(sv("title", {}, p.rotulo + ": " + fmtValor(p.valor, d.inteiro)));
+      s.appendChild(f);
+      var ly = 24 + i * 28;
+      s.appendChild(sv("rect", { x: 440, y: ly - 12, width: 16, height: 16, rx: 3, fill: cor }));
+      s.appendChild(sv("text", { x: 464, y: ly + 1, "font-size": 14 }, corte(p.rotulo, 40) + " — " + fmtValor(p.valor, d.inteiro) + " (" + (fat * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%)"));
+      ang = a2;
+    });
+    return s;
+  }
+  function mostrarGrafico() {
+    var r = ultimo, g = V.graf, corpo = $("exec-corpo"), wrap = el("div", "exec-grafico");
+    corpo.textContent = "";
+    var op = el("div", "exec-grafico-opcoes");
+    function seletor(rotulo, itens, atual, aoMudar) {
+      var lab = el("label"), sel = document.createElement("select");
+      lab.appendChild(el("span", "", rotulo));
+      itens.forEach(function (it) {
+        var o = document.createElement("option"); o.value = it[0]; o.textContent = it[1]; if (String(it[0]) === String(atual)) o.selected = true; sel.appendChild(o);
+      });
+      sel.addEventListener("change", function () { aoMudar(sel.value); desenhar(); });
+      lab.appendChild(sel); op.appendChild(lab);
+    }
+    seletor("Tipo", [["barras", "Barras"], ["linhas", "Linhas"], ["pizza", "Pizza"]], g.tipo, function (v) { g.tipo = v; });
+    seletor("Agrupar por", r.colunas.map(function (c, i) { return [i, c]; }), g.cat, function (v) { g.cat = +v; });
+    var valores = [[-1, "Quantidade de linhas"]];
+    r.colunas.forEach(function (c, i) { if (ehNum(i)) valores.push([i, "Soma de " + c]); });
+    seletor("Valor", valores, g.val, function (v) { g.val = +v; });
+    seletor(g.tipo === "linhas" ? "Mostrar (últimos)" : "Mostrar (maiores)", [[5, "5"], [10, "10"], [20, "20"], [50, "50"], [0, "Todos"]], g.n, function (v) { g.n = +v; });
+    wrap.appendChild(op);
+    var d = pontosGrafico();
+    atualizarContagem(linhasVista().length);
+    if (!d.pontos.length) { wrap.appendChild(el("p", "nota", "Nada para mostrar com a busca atual.")); corpo.appendChild(wrap); return; }
+    wrap.appendChild(g.tipo === "linhas" ? svgLinhas(d) : g.tipo === "pizza" ? svgPizza(d) : svgBarras(d));
+    var nota = (g.val < 0 ? "Quantidade de linhas" : "Soma de " + r.colunas[g.val]) + " por " + r.colunas[g.cat] + ". ";
+    if (d.total > d.pontos.length) nota += "Mostrando " + d.pontos.length + " de " + d.total.toLocaleString("pt-BR") + " grupos" + (g.tipo === "pizza" ? " (o resto vai em “Outros”)." : ".");
+    if (g.val >= 0 && r.tipos[g.val] === "n" && g.cat === g.val) nota += " Dica: agrupe por outra coluna.";
+    wrap.appendChild(el("p", "nota", nota));
+    corpo.appendChild(wrap);
+  }
+
+  // ---------- executar ----------
   function executar(sql) {
     if (!local || ocupado) return;
     if (!conexao) { pendente = sql; abrirConexao(); return; }
-    ocupado = true; ultimo = null;
-    $("exec-excel").disabled = $("exec-copiar").disabled = true;
+    ocupado = true; ultimo = null; V = null;
+    $("exec-excel").disabled = $("exec-mais").disabled = true;
+    $("exec-barra").hidden = true;
     $("exec-info").textContent = "Executando em " + descricaoBanco() + "…";
     estado("", [el("div", "exec-girando"), el("p", "", "Executando a consulta no banco. Só leitura: nada é alterado.")]);
     abrir(dRes);
@@ -849,8 +1168,8 @@ body .exec-tabela th { background: var(--c-sup2); }
       var ms = r.ms || (Date.now() - inicio);
       var tempo = ms < 1000 ? "menos de 1 s" : (ms / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + " s";
       $("exec-info").textContent = plural(r.total, "linha", "linhas") + (r.cortado ? " (limite)" : "") + " · " + tempo + " · " + descricaoBanco();
-      $("exec-excel").disabled = $("exec-copiar").disabled = !r.total;
-      mostrarTabela(r);
+      $("exec-excel").disabled = $("exec-mais").disabled = !r.total;
+      iniciarVista(r);
     }, function () {
       ocupado = false;
       mostrarErro({ erro: "O serviço do Assistente RM não respondeu. Feche a janela e abra o atalho Assistente RM de novo." });
@@ -858,37 +1177,151 @@ body .exec-tabela th { background: var(--c-sup2); }
   }
   function mostrarErro(r) {
     $("exec-info").textContent = descricaoBanco();
+    $("exec-barra").hidden = true;
     var filhos = [el("h3", "", "Não deu para executar"), el("p", "", r.erro || "Erro desconhecido.")];
     if (r.detalhe) filhos.push(el("p", "exec-detalhe", r.detalhe));
     estado("erro", filhos);
   }
 
-  // ---------- Excel e cópia ----------
+  // ---------- saídas: Excel (.xlsx), CSV, PDF, e-mail, cópia ----------
+  // O que sai é o que está na tela: busca aplicada, ordem escolhida e só as colunas visíveis (todas as linhas, não só as 1.000 mostradas).
+  function dadosSaida() {
+    var r = ultimo, vis = visiveis(), L = linhasVista();
+    return { colunas: vis.map(function (i) { return r.colunas[i]; }), tipos: vis.map(function (i) { return r.tipos[i]; }),
+             linhas: L.map(function (l) { return vis.map(function (i) { return l[i]; }); }) };
+  }
+  function nomeArquivo(ext) {
+    var agora = new Date(), dois = function (n) { return ("0" + n).slice(-2); };
+    return "consulta-rm-" + agora.getFullYear() + "-" + dois(agora.getMonth() + 1) + "-" + dois(agora.getDate()) + "-" + dois(agora.getHours()) + dois(agora.getMinutes()) + "." + ext;
+  }
+  function baixarBlob(blob, nome) {
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nome;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  /*XLSX_INI*/
+  var CRC_TAB = null;
+  function crc32(b) {
+    if (!CRC_TAB) { CRC_TAB = []; for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; CRC_TAB[n] = c >>> 0; } }
+    var crc = 0xFFFFFFFF;
+    for (var i = 0; i < b.length; i++) crc = CRC_TAB[(crc ^ b[i]) & 255] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  function utf8(s) { return new TextEncoder().encode(s); }
+  // zip sem compressão (xlsx aceita); devolve Uint8Array
+  function montarZip(arquivos) {
+    var partes = [], central = [], desloc = 0, dosHora = 0, dosData = (46 << 9) | (1 << 5) | 1;
+    arquivos.forEach(function (a) {
+      var nome = utf8(a.nome), dados = typeof a.dados === "string" ? utf8(a.dados) : a.dados, crc = crc32(dados);
+      var lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+      lh.setUint16(10, dosHora, true); lh.setUint16(12, dosData, true); lh.setUint32(14, crc, true);
+      lh.setUint32(18, dados.length, true); lh.setUint32(22, dados.length, true); lh.setUint16(26, nome.length, true); lh.setUint16(28, 0, true);
+      var ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+      ch.setUint16(12, dosHora, true); ch.setUint16(14, dosData, true); ch.setUint32(16, crc, true);
+      ch.setUint32(20, dados.length, true); ch.setUint32(24, dados.length, true); ch.setUint16(28, nome.length, true);
+      ch.setUint32(42, desloc, true);
+      partes.push(new Uint8Array(lh.buffer), nome, dados);
+      central.push(new Uint8Array(ch.buffer), nome);
+      desloc += 30 + nome.length + dados.length;
+    });
+    var tamC = 0; central.forEach(function (c) { tamC += c.length; });
+    var fim = new DataView(new ArrayBuffer(22));
+    fim.setUint32(0, 0x06054b50, true); fim.setUint16(8, arquivos.length, true); fim.setUint16(10, arquivos.length, true);
+    fim.setUint32(12, tamC, true); fim.setUint32(16, desloc, true);
+    var todas = partes.concat(central, [new Uint8Array(fim.buffer)]), total = 0;
+    todas.forEach(function (p) { total += p.length; });
+    var out = new Uint8Array(total), pos = 0;
+    todas.forEach(function (p) { out.set(p, pos); pos += p.length; });
+    return out;
+  }
+  function xmlTexto(s) {
+    return String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; });
+  }
+  function colunaXlsx(n) { var s = ""; n++; while (n > 0) { var m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; }
+  function serialData(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}):(\d{2}))?$/.exec(s);
+    if (!m) return null;
+    var ms = Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
+    return { n: ms / 86400000 + 25569, hora: !!m[4] && (m[4] + m[5] + m[6]) !== "000000" };
+  }
+  // dados: { colunas: [...], tipos: ["t"|"n"|"i"|"d"], linhas: [[valor ou null]] }  (valores como o serviço entrega: texto)
+  function montarXlsx(dados, nomePlanilha) {
+    var nc = dados.colunas.length, largura = dados.colunas.map(function (c) { return String(c).length + 2; });
+    var linhas = ['<row r="1">' + dados.colunas.map(function (c, j) { return '<c r="' + colunaXlsx(j) + '1" s="1" t="inlineStr"><is><t>' + xmlTexto(c) + "</t></is></c>"; }).join("") + "</row>"];
+    dados.linhas.forEach(function (l, i) {
+      var cel = [], r = i + 2;
+      for (var j = 0; j < nc; j++) {
+        var v = l[j], t = dados.tipos[j], ref = colunaXlsx(j) + r;
+        if (v === null || v === undefined) continue;
+        var len = String(v).length + 2; if (len > largura[j]) largura[j] = Math.min(len, 60);
+        if (t === "n" && /^-?\d+(\.\d+)?$/.test(v)) cel.push('<c r="' + ref + '" s="2"><v>' + v + "</v></c>");
+        else if (t === "i" && /^-?\d+$/.test(v)) cel.push('<c r="' + ref + '" s="3"><v>' + v + "</v></c>");
+        else if (t === "d" && serialData(v)) { var d = serialData(v); cel.push('<c r="' + ref + '" s="' + (d.hora ? 5 : 4) + '"><v>' + d.n + "</v></c>"); }
+        else cel.push('<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' + xmlTexto(v) + "</t></is></c>");
+      }
+      linhas.push('<row r="' + r + '">' + cel.join("") + "</row>");
+    });
+    var ultima = colunaXlsx(nc - 1) + (dados.linhas.length + 1);
+    var folha = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<dimension ref="A1:' + ultima + '"/>' +
+      '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' +
+      '<sheetFormatPr defaultRowHeight="15"/>' +
+      "<cols>" + largura.map(function (w, j) { return '<col min="' + (j + 1) + '" max="' + (j + 1) + '" width="' + Math.min(Math.max(w, 8), 60) + '" customWidth="1"/>'; }).join("") + "</cols>" +
+      "<sheetData>" + linhas.join("") + "</sheetData>" +
+      '<autoFilter ref="A1:' + ultima + '"/></worksheet>';
+    var estilos = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<numFmts count="2"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/><numFmt numFmtId="165" formatCode="dd/mm/yyyy hh:mm"/></numFmts>' +
+      '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts>' +
+      '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>' +
+      '<fill><patternFill patternType="solid"><fgColor rgb="FF245FD4"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+      '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
+      '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+      '<cellXfs count="6"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+      '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>' +
+      '<xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+      '<xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+      '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+      '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs>' +
+      '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+    var cab = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+    return montarZip([
+      { nome: "[Content_Types].xml", dados: cab + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>' },
+      { nome: "_rels/.rels", dados: cab + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+      { nome: "xl/workbook.xml", dados: cab + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="' + xmlTexto(nomePlanilha || "Consulta") + '" sheetId="1" r:id="rId1"/></sheets></workbook>' },
+      { nome: "xl/_rels/workbook.xml.rels", dados: cab + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' },
+      { nome: "xl/styles.xml", dados: estilos },
+      { nome: "xl/worksheets/sheet1.xml", dados: folha }
+    ]);
+  }
+  /*XLSX_FIM*/
+
+  function baixarExcel(depois) {
+    if (!ultimo) return;
+    var d = dadosSaida(), nome = nomeArquivo("xlsx");
+    baixarBlob(new Blob([montarXlsx(d, "Consulta")], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), nome);
+    avisar($("exec-excel"), "Arquivo baixado");
+    return nome;
+  }
   function celulaCSV(v, t) {
     var s = paraPlanilha(v, t);
     // códigos só com dígitos continuam texto no Excel: sem perder o zero da chapa nem virar 5,09E+10 no CPF
     if (t === "t" && /^\d+$/.test(s)) return '="' + s + '"';
     return /[";\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
-  function baixarExcel() {
-    if (!ultimo) return;
-    var r = ultimo, linhas = [r.colunas.map(function (c) { return celulaCSV(c, "x"); }).join(";")];
-    r.linhas.forEach(function (l) { linhas.push(l.map(function (v, i) { return celulaCSV(v, r.tipos[i]); }).join(";")); });
-    var blob = new Blob(["﻿" + linhas.join("\r\n") + "\r\n"], { type: "text/csv;charset=utf-8" });
-    var agora = new Date(), dois = function (n) { return ("0" + n).slice(-2); };
-    var nome = "consulta-rm-" + agora.getFullYear() + "-" + dois(agora.getMonth() + 1) + "-" + dois(agora.getDate()) + "-" + dois(agora.getHours()) + dois(agora.getMinutes()) + ".csv";
-    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nome;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
-    avisar($("exec-excel"), "Arquivo baixado");
+  function baixarCSV() {
+    var d = dadosSaida(), linhas = [d.colunas.map(function (c) { return celulaCSV(c, "x"); }).join(";")];
+    d.linhas.forEach(function (l) { linhas.push(l.map(function (v, i) { return celulaCSV(v, d.tipos[i]); }).join(";")); });
+    baixarBlob(new Blob(["﻿" + linhas.join("\r\n") + "\r\n"], { type: "text/csv;charset=utf-8" }), nomeArquivo("csv"));
   }
   function copiarTabela() {
-    if (!ultimo) return;
-    var r = ultimo, limpa = function (s) { return String(s).replace(/[\t\r\n]+/g, " "); };
-    var texto = [r.colunas.map(limpa).join("\t")].concat(r.linhas.map(function (l) {
-      return l.map(function (v, i) { return limpa(paraPlanilha(v, r.tipos[i])); }).join("\t");
+    var d = dadosSaida(), limpa = function (s) { return String(s).replace(/[\t\r\n]+/g, " "); };
+    var texto = [d.colunas.map(limpa).join("\t")].concat(d.linhas.map(function (l) {
+      return l.map(function (v, i) { return limpa(paraPlanilha(v, d.tipos[i])); }).join("\t");
     })).join("\r\n");
-    var feito = function () { avisar($("exec-copiar"), "Copiado — cole no Excel"); };
+    var feito = function () { avisar($("exec-mais"), "Copiado — cole no Excel"); };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(texto).then(feito, planoB);
     else planoB();
     function planoB() {
@@ -898,10 +1331,88 @@ body .exec-tabela th { background: var(--c-sup2); }
       dRes.removeChild(ta);
     }
   }
+  function imprimir() {
+    var corpo, titulo = "Consulta RM";
+    if (V.aba === "grafico") {
+      var svg = document.querySelector(".exec-grafico svg");
+      corpo = svg ? '<div class="graf">' + new XMLSerializer().serializeToString(svg) + "</div>" : "";
+    } else {
+      var d = dadosSaida(), MAX = 5000, soma = "";
+      var cab = "<tr>" + d.colunas.map(function (c, j) { return "<th" + (d.tipos[j] === "n" || d.tipos[j] === "i" ? ' class="n"' : "") + ">" + esc(c) + "</th>"; }).join("") + "</tr>";
+      var lin = d.linhas.slice(0, MAX).map(function (l) {
+        return "<tr>" + l.map(function (v, j) { var t = d.tipos[j]; return "<td" + (t === "n" || t === "i" ? ' class="n"' : "") + ">" + esc(v === null ? "" : paraTela(v, t)) + "</td>"; }).join("") + "</tr>";
+      }).join("");
+      if (d.tipos.indexOf("n") >= 0) {
+        soma = '<tr class="tot">' + d.colunas.map(function (c, j) {
+          return d.tipos[j] === "n" ? '<td class="n">' + fmtTotal(d.linhas.reduce(function (s, l) { return s + (l[j] === null ? 0 : parseFloat(l[j])); }, 0)) + "</td>" : "<td>" + (j === 0 ? "Total" : "") + "</td>";
+        }).join("") + "</tr>";
+      }
+      corpo = (d.linhas.length > MAX ? "<p>Mostrando as primeiras " + MAX.toLocaleString("pt-BR") + " de " + d.linhas.length.toLocaleString("pt-BR") + " linhas. Para tudo, use o Excel.</p>" : "") +
+              "<table><thead>" + cab + "</thead><tbody>" + lin + soma + "</tbody></table>";
+    }
+    var html = '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>' + titulo + '</title><style>' +
+      '@page { size: A4 landscape; margin: 12mm; } body { font: 10px/1.35 Arial, sans-serif; color: #111; } h1 { font-size: 14px; margin: 0 0 2px; } p { margin: 0 0 8px; color: #444; }' +
+      'table { border-collapse: collapse; width: 100%; } th { background: #245FD4; color: #fff; text-align: left; padding: 4px 6px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
+      'td { padding: 3px 6px; border-bottom: 1px solid #ddd; } tr:nth-child(even) td { background: #f5f7fb; } .n { text-align: right; } thead { display: table-header-group; } tr { page-break-inside: avoid; }' +
+      '.tot td { font-weight: 700; border-top: 2px solid #245FD4; } .graf svg { width: 100%; height: auto; color: #111; } .graf text { fill: #111; }</style></head><body>' +
+      "<h1>Consulta RM</h1><p>" + esc($("exec-info").textContent) + "</p>" + corpo + "</bo" + "dy></html>";
+    var f = document.createElement("iframe");
+    f.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0";
+    document.body.appendChild(f);
+    var doc = f.contentDocument; doc.open(); doc.write(html); doc.close();
+    setTimeout(function () {
+      try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { }
+      setTimeout(function () { if (f.parentNode) f.parentNode.removeChild(f); }, 3000);
+    }, 250);
+  }
+  function enviarEmail() {
+    var nome = baixarExcel();
+    var assunto = encodeURIComponent("Consulta RM — " + (new Date()).toLocaleDateString("pt-BR"));
+    var corpo = encodeURIComponent("Segue a consulta do RM.\r\n\r\nAnexe o arquivo que acabou de ser baixado: " + nome + "\r\n");
+    var a = document.createElement("a"); a.href = "mailto:?subject=" + assunto + "&body=" + corpo;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    avisar($("exec-mais"), "Anexe o arquivo baixado");
+  }
   function avisar(botao, msg) {
-    var span = botao.querySelector("span"), antes = span.textContent;
+    var span = botao.querySelector("span"), antes = span.getAttribute("data-antes") || span.textContent;
+    span.setAttribute("data-antes", antes);
     span.textContent = msg; clearTimeout(botao._t);
     botao._t = setTimeout(function () { span.textContent = antes; }, 2200);
+  }
+
+  // menus e ligações do resultado
+  function fecharMenus(exceto) {
+    [["exec-mais", "exec-mais-lista"], ["exec-colunas", "exec-colunas-lista"]].forEach(function (par) {
+      if (par[1] === exceto) return;
+      $(par[1]).hidden = true; $(par[0]).setAttribute("aria-expanded", "false");
+    });
+  }
+  function ligarMenu(botao, lista) {
+    $(botao).addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      var abrindo = $(lista).hidden;
+      fecharMenus(abrindo ? lista : null);
+      $(lista).hidden = !abrindo; $(botao).setAttribute("aria-expanded", abrindo ? "true" : "false");
+    });
+  }
+  function ligarResultado() {
+    $("exec-excel").addEventListener("click", baixarExcel);
+    ligarMenu("exec-mais", "exec-mais-lista");
+    ligarMenu("exec-colunas", "exec-colunas-lista");
+    $("exec-mais-lista").addEventListener("click", function (ev) {
+      var b = ev.target.closest("button[data-saida]");
+      if (!b || !ultimo || !V) return;
+      fecharMenus();
+      var acao = b.getAttribute("data-saida");
+      if (acao === "csv") baixarCSV(); else if (acao === "pdf") imprimir(); else if (acao === "email") enviarEmail(); else if (acao === "copiar") copiarTabela();
+    });
+    $("exec-colunas-lista").addEventListener("click", function (ev) { ev.stopPropagation(); });
+    dRes.addEventListener("click", function () { fecharMenus(); });
+    dRes.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && (!$("exec-mais-lista").hidden || !$("exec-colunas-lista").hidden)) { fecharMenus(); ev.stopPropagation(); } });
+    $("exec-busca").addEventListener("input", function (ev) { if (V) { V.busca = ev.target.value; desenhar(); } });
+    Array.prototype.forEach.call(document.querySelectorAll(".exec-abas button"), function (b) {
+      b.addEventListener("click", function () { if (!V) return; V.aba = b.getAttribute("data-aba"); marcarAba(); desenhar(); });
+    });
   }
 
   // ---------- conexão ----------
@@ -945,8 +1456,7 @@ body .exec-tabela th { background: var(--c-sup2); }
   dCon.addEventListener("close", function () { pendente = null; });
 
   // ---------- ligações ----------
-  $("exec-excel").addEventListener("click", baixarExcel);
-  $("exec-copiar").addEventListener("click", copiarTabela);
+  ligarResultado();
   $("exec-trocar").addEventListener("click", abrirConexao);
   document.addEventListener("click", function (ev) {
     if (ev.target.closest("[data-fechar-exec]")) fechar(dRes);
@@ -1560,6 +2070,14 @@ body .exec-tabela th { background: var(--c-sup2); }
       var tmp = e.campos[i]; e.campos[i] = e.campos[k]; e.campos[k] = tmp;
       return e;
     }
+    // leva o campo para a posição `para` (0 = primeiro) da lista de campos
+    function levarCampo(estado, chave, para) {
+      var e = clonar(estado), i = -1;
+      e.campos.forEach(function (x, j) { if (x.chave === chave) i = j; });
+      if (i < 0 || para < 0 || para >= e.campos.length || para === i) return estado;
+      e.campos.splice(para, 0, e.campos.splice(i, 1)[0]);
+      return e;
+    }
     function renomearCampo(estado, chave, rotulo) {
       var e = clonar(estado);
       e.campos.forEach(function (x) { if (x.chave === chave) x.rotulo = rotulo; });
@@ -1677,7 +2195,7 @@ body .exec-tabela th { background: var(--c-sup2); }
     }
 
     return { interpretar: interpretar, montarSQL: montarSQL, adicionarCampo: adicionarCampo, removerCampo: removerCampo,
-             trocarCampo: trocarCampo, moverCampo: moverCampo, renomearCampo: renomearCampo,
+             trocarCampo: trocarCampo, moverCampo: moverCampo, levarCampo: levarCampo, renomearCampo: renomearCampo,
              sugerir: sugerir, normalizar: normalizar, existeColuna: existeColuna };
   }
 
@@ -1756,7 +2274,8 @@ body .exec-tabela th { background: var(--c-sup2); }
     aviso: '<path d="M12 8v5M12 16.5v.5"/><circle cx="12" cy="12" r="9"/>',
     desfazer: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
     subir: '<path d="M6 15l6-6 6 6"/>',
-    descer: '<path d="M6 9l6 6 6-6"/>'
+    descer: '<path d="M6 9l6 6 6-6"/>',
+    alca: '<circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/>'
   };
   function icone(nome) {
     var s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -1915,6 +2434,59 @@ body .exec-tabela th { background: var(--c-sup2); }
     ]);
   }
 
+  // arrastar para mudar a ordem (mouse e toque); as setas continuam valendo para o teclado
+  function ativarArrastar(ol, campos) {
+    var arr = null;
+    function limpar() {
+      if (!arr) return;
+      arr.lis.forEach(function (x) { x.style.transform = ""; x.classList.remove("arrastando"); });
+      ol.classList.remove("ordenando");
+      arr = null;
+    }
+    ol.addEventListener("pointerdown", function (ev) {
+      if (ev.button > 0) return;
+      var zona = ev.target.closest(".alca, .origem"), li = zona && zona.closest("li[data-chave]");
+      if (!li) return;
+      var lis = Array.prototype.slice.call(ol.children), de = lis.indexOf(li);
+      arr = { li: li, lis: lis, de: de, para: de, y0: ev.clientY, id: ev.pointerId, ativo: false,
+              medidas: lis.map(function (x) { var r = x.getBoundingClientRect(); return { meio: r.top + r.height / 2, h: r.height }; }) };
+      li.setPointerCapture(ev.pointerId);
+    });
+    ol.addEventListener("pointermove", function (ev) {
+      if (!arr || ev.pointerId !== arr.id) return;
+      var dy = ev.clientY - arr.y0;
+      if (!arr.ativo) {
+        if (Math.abs(dy) < 4) return;
+        arr.ativo = true; ol.classList.add("ordenando"); arr.li.classList.add("arrastando");
+      }
+      ev.preventDefault();
+      arr.li.style.transform = "translateY(" + dy + "px)";
+      var de = arr.de, m = arr.medidas, centro = m[de].meio + dy, para = de;
+      m.forEach(function (x, k) {
+        if (k < de && centro < x.meio) para = Math.min(para, k);
+        if (k > de && centro > x.meio) para = Math.max(para, k);
+      });
+      arr.para = para;
+      arr.lis.forEach(function (x, k) {
+        if (k === de) return;
+        var desloca = (de < para && k > de && k <= para) ? -m[de].h : (para < de && k >= para && k < de) ? m[de].h : 0;
+        x.style.transform = desloca ? "translateY(" + desloca + "px)" : "";
+      });
+    });
+    ol.addEventListener("pointerup", function (ev) {
+      if (!arr || ev.pointerId !== arr.id) return;
+      var de = arr.de, para = arr.para, mudou = arr.ativo && para !== de;
+      limpar();
+      if (!mudou) return;
+      // a ordem na tela pode diferir da do estado (totais por último): leva para a posição real do campo que ficou no destino
+      var pos = {};
+      estado.campos.forEach(function (x, j) { pos[x.chave] = j; });
+      estado = A.levarCampo(estado, campos[de].chave, pos[campos[para].chave]);
+      responderAcao("Reordenei " + campos[de].nome + ".");
+    });
+    ol.addEventListener("pointercancel", function (ev) { if (arr && ev.pointerId === arr.id) limpar(); });
+  }
+
   function etapaConsulta() {
     if (!estado || !estado.campos.length) return [];
     // mesma ordem do SQL: com totais, as colunas descritivas vêm antes das somas
@@ -1944,10 +2516,13 @@ body .exec-tabela th { background: var(--c-sup2); }
         else rotulo.value = c.rotulo || "";
       });
 
-      var li = el("li", null, [
+      var li = el("li", { "data-chave": c.chave }, [
+        el("span", { "class": "alca", title: "Arraste para mudar a ordem" }, [icone("alca")]),
         el("div", { "class": "ordem-btns" }, [subir, descer]),
-        el("span", { "class": "campo-nome", texto: nomeBonito(c.nome) }),
-        el("span", { "class": "campo-ref", texto: c.expr ? (c.agregado ? "soma calculada" : "calculado") : c.t + "." + c.c }),
+        el("div", { "class": "origem" }, [
+          el("span", { "class": "campo-nome", texto: c.expr ? nomeBonito(c.nome) : c.t + "." + c.c }),
+          el("span", { "class": "campo-ref", texto: c.expr ? (c.agregado ? "soma calculada" : "calculado") : nomeBonito(c.nome) })
+        ]),
         rotulo
       ]);
       if (c.alternativas && c.alternativas.length) {
@@ -1960,7 +2535,8 @@ body .exec-tabela th { background: var(--c-sup2); }
         c.alternativas.forEach(function (a, i2) { sel.appendChild(el("option", { value: i2, texto: a.nome })); });
         li.appendChild(sel);
       }
-      var tirar = el("button", { "class": "icone-btn", type: "button", title: "Tirar " + c.nome }, [icone("fechar"), el("span", { "class": "oculto", texto: "Tirar " + c.nome })]);
+      var tirar = el("button", { "class": "btn-remover", type: "button", title: "Tirar " + c.nome, texto: "Remover" });
+      tirar.setAttribute("aria-label", "Tirar " + c.nome);
       tirar.addEventListener("click", function () { estado = A.removerCampo(estado, c.chave); responderAcao("Tirei " + c.nome + "."); });
       li.appendChild(tirar);
       ol.appendChild(li);
@@ -1968,7 +2544,8 @@ body .exec-tabela th { background: var(--c-sup2); }
 
     var s = A.montarSQL(estado);
     ultimoSQL = s.sql;
-    var corpo = [ol, painelSQL(s.sql)];
+    ativarArrastar(ol, campos);
+    var corpo = [ol, el("p", { "class": "nota-campos", texto: "O nome ao lado de cada campo vira o título da coluna no resultado." }), painelSQL(s.sql)];
     if (s.avisos.length) {
       var ul = el("ul", { "class": "avisos" });
       s.avisos.forEach(function (a) { ul.appendChild(el("li", null, [icone("aviso"), el("span", { texto: a })])); });

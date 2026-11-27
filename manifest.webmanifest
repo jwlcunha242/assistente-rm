@@ -30,7 +30,7 @@
   ],
   "shortcuts": [
     {
-      "name": "Lista de campos",
+      "name": "Consulta SQL",
       "url": "./seletor.html"
     }
   ]
