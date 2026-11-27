@@ -715,7 +715,7 @@ pre.sql { min-height: 4.5em; }
         <div class="exec-lista" id="exec-mais-lista" role="menu" hidden>
           <button type="button" role="menuitem" data-saida="csv"><b>CSV</b><small>Texto separado por ponto e vírgula</small></button>
           <button type="button" role="menuitem" data-saida="pdf"><b>PDF / Imprimir</b><small>Abre a impressão; escolha “Salvar como PDF”</small></button>
-          <button type="button" role="menuitem" data-saida="email"><b>Enviar por e-mail</b><small>Baixa o Excel e abre o e-mail para anexar</small></button>
+          <button type="button" role="menuitem" data-saida="email"><b>Enviar por e-mail</b><small>Abre um e-mail novo com o Excel anexado</small></button>
           <button type="button" role="menuitem" data-saida="copiar"><b>Copiar tabela</b><small>Para colar direto no Excel</small></button>
         </div>
       </div>
@@ -1428,11 +1428,44 @@ pre.sql { min-height: 4.5em; }
       setTimeout(function () { if (f.parentNode) f.parentNode.removeChild(f); }, 3000);
     }, 250);
   }
+  // E-mail com o Excel anexado. Um link mailto não carrega anexo (regra dos navegadores), então:
+  // 1) Outlook clássico, pelo serviço local (abre o e-mail pronto com o anexo);
+  // 2) janela Compartilhar do Windows (Outlook novo, Gmail, Teams, WhatsApp...);
+  // 3) último caso: baixa o Excel e abre o e-mail em branco para anexar à mão.
+  function base64(bytes) {
+    var partes = [], PASSO = 0x8000;
+    for (var i = 0; i < bytes.length; i += PASSO) partes.push(String.fromCharCode.apply(null, bytes.subarray(i, i + PASSO)));
+    return btoa(partes.join(""));
+  }
   function enviarEmail() {
-    var nome = baixarExcel();
-    var assunto = encodeURIComponent("Consulta RM — " + (new Date()).toLocaleDateString("pt-BR"));
-    var corpo = encodeURIComponent("Segue a consulta do RM.\r\n\r\nAnexe o arquivo que acabou de ser baixado: " + nome + "\r\n");
-    var a = document.createElement("a"); a.href = "mailto:?subject=" + assunto + "&body=" + corpo;
+    var d = dadosSaida(), nome = nomeArquivo("xlsx"), bytes = montarXlsx(d, "Consulta");
+    var assunto = "Consulta RM — " + (new Date()).toLocaleDateString("pt-BR");
+    var texto = "Segue em anexo a consulta do RM (" + plural(d.linhas.length, "linha", "linhas") + ").";
+    var botao = $("exec-mais");
+    avisar(botao, "Abrindo o e-mail…");
+    api("/api/email", { nome: nome, arquivo: base64(bytes), assunto: assunto, texto: texto }).then(function (r) {
+      if (r.ok) { avisar(botao, "E-mail aberto no Outlook"); return; }
+      compartilhar(bytes, nome, assunto, texto);
+    }, function () { compartilhar(bytes, nome, assunto, texto); });
+  }
+  function compartilhar(bytes, nome, assunto, texto) {
+    var arquivo = null;
+    try { arquivo = new File([bytes], nome, { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }); } catch (e) { }
+    if (arquivo && navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+      navigator.share({ files: [arquivo], title: assunto, text: texto }).then(function () {
+        avisar($("exec-mais"), "Arquivo compartilhado");
+      }, function (e) {
+        if (e && e.name === "AbortError") return;           // a pessoa fechou a janela de compartilhar
+        emailManual(bytes, nome, assunto);
+      });
+      return;
+    }
+    emailManual(bytes, nome, assunto);
+  }
+  function emailManual(bytes, nome, assunto) {
+    baixarBlob(new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), nome);
+    var corpo = "Segue a consulta do RM.\r\n\r\nAnexe o arquivo que acabou de ser baixado: " + nome + "\r\n";
+    var a = document.createElement("a"); a.href = "mailto:?subject=" + encodeURIComponent(assunto) + "&body=" + encodeURIComponent(corpo);
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     avisar($("exec-mais"), "Anexe o arquivo baixado");
   }
